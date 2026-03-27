@@ -176,34 +176,44 @@
         }
 
         .top-bar {
-            position: absolute;
+            position: fixed;
             top: 0;
+            left: 0;
             right: 0;
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             gap: 10px;
             align-items: center;
             z-index: 100;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            height: 50px;
+            box-sizing: border-box;
         }
 
-        .user-info { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+        .user-info { color: var(--text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
         
-        .left-panel { flex: 2; padding: 12px 20px 20px 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: calc(100vh - 60px); box-sizing: border-box; margin-top: 60px; }
+        .left-panel { flex: 2; padding: 0 20px 20px 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: calc(100vh - 50px); box-sizing: border-box; margin-top: 50px; }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
-        .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 60px; height: calc(100vh - 60px); padding-bottom: 100px; }
+        .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 50px; height: calc(100vh - 50px); padding-bottom: 100px; }
         
-        .input-section { background: transparent; padding: 10px 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color); margin-bottom: 12px; }
-        .input-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-        .search-group { display: flex; gap: 6px; align-items: center; }
+        .input-section { display: none; }
+        .input-group { display: none; }
+        .search-group { display: flex; gap: 6px; align-items: center; flex: 1; }
+        .top-bar .input-group { display: flex; gap: 6px; align-items: center; flex: 1; margin: 0; }
+        .top-bar .search-group { display: flex; gap: 6px; align-items: center; flex: 0.8; }
         
-        input[type="text"], input[type="number"], input[type="search"] { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 12px; outline: none; }
-        #title { flex: 2; }
-        #imgUrl { flex: 1; }
-        #searchInput { flex: 1; border-color: var(--primary); }
+        input[type="text"], input[type="number"], input[type="search"] { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; height: 28px; box-sizing: border-box; }
+        #title { flex: 1.5; min-width: 120px; }
+        #imgUrl { flex: 1; min-width: 100px; }
+        #searchInput { flex: 0.8; min-width: 80px; border-color: var(--primary); }
+        #totalVol { width: 60px !important; }
         
-        .type-select { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-secondary); cursor: pointer; }
-        .add-btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .type-select { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
+        .type-select input { margin: 0; }
+        .add-btn { padding: 6px 14px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 12px; height: 28px; white-space: nowrap; }
         .add-btn:hover { background: #4a52d5; transform: translateY(-1px); }
+        .top-bar .add-btn { padding: 6px 12px; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
         .card { background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.3s; }
@@ -282,20 +292,18 @@
     <div id="dashboardContainer">
         <div class="top-bar">
             <div class="user-info"><span id="userDisplayId"></span></div>
-            <button class="add-btn" style="background: var(--danger); padding: 8px 12px; font-size: 12px;" onclick="confirmDeleteAccount()">계정 삭제</button>
-            <button class="add-btn" style="background: #adb5bd; padding: 8px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
+            <div class="input-group">
+                <input type="text" id="title" placeholder="제목" onkeypress="if(event.key==='Enter') addItem()">
+                <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem()">
+                <label class="type-select"><input type="checkbox" id="isManga" onchange="toggleMangaInput()"> 만화</label>
+                <div id="mangaOnlyInput" style="display:none; gap:5px;"><input type="number" id="totalVol" placeholder="전체 권수"></div>
+                <button class="add-btn" onclick="addItem()">등록</button>
+            </div>
+            <div class="search-group"><input type="search" id="searchInput" placeholder="검색..." oninput="renderAll()"></div>
+            <button class="add-btn" style="background: var(--danger);" onclick="confirmDeleteAccount()">계정 삭제</button>
+            <button class="add-btn" style="background: #adb5bd;" onclick="logout()">로그아웃</button>
         </div>
         <div class="left-panel" ondrop="drop(event, 'none')">
-            <div class="input-section">
-                <div class="input-group">
-                    <input type="text" id="title" placeholder="제목 (Enter)" onkeypress="if(event.key==='Enter') addItem()">
-                    <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem()">
-                    <label class="type-select"><input type="checkbox" id="isManga" onchange="toggleMangaInput()"> 만화</label>
-                    <div id="mangaOnlyInput" style="display:none; gap:5px;"><input type="number" id="totalVol" placeholder="전체 권수" style="width:70px;"></div>
-                    <button class="add-btn" onclick="addItem()">등록</button>
-                </div>
-                <div class="search-group"><input type="search" id="searchInput" placeholder="🔍 제목으로 검색..." oninput="renderAll()"></div>
-            </div>
             <div class="dashboard-container"><div class="dashboard" id="mainDashboard"></div></div>
         </div>
         <div class="right-panel">
