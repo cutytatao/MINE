@@ -10,25 +10,32 @@
     
     <style>
         :root { 
-            --bg-color: #212529; --panel-bg: #2b3035; --border-color: #495057;
-            --primary: #5c67f2; --text-light: #f8f9fa; --danger: #fa5252;
+            --bg-color: #ffffff; 
+            --panel-bg: #f8f9fa; 
+            --border-color: #dee2e6;
+            --primary: #5c67f2; 
+            --text-light: #212529; 
+            --text-secondary: #6c757d;
+            --danger: #fa5252;
             --manga-color: #8d6e63;
-            --color-upcoming: #ff8787; --color-towatch: #ffd43b; --color-watched: #ffffff;
-            --txt-dark: #212529;
+            --color-upcoming: #ff8787; 
+            --color-towatch: #ffd43b; 
+            --color-watched: #51cf66;
+            --txt-dark: #ffffff;
         }
-        body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; background-color: var(--bg-color); color: var(--text-light); }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; background-color: var(--bg-color); color: var(--text-light); }
         
         /* 로그인 로비 스타일 */
         #lobbyContainer {
             display: flex;
             width: 100%;
             height: 100%;
-            background: #1a1d20;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 100%);
         }
 
         .lobby-left {
             flex: 3;
-            padding: 40px;
+            padding: 60px 50px;
             overflow-y: auto;
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -37,56 +44,68 @@
 
         .lobby-right {
             flex: 1;
-            padding: 40px;
-            background: var(--panel-bg);
+            padding: 50px 40px;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 20px;
+            gap: 24px;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.03);
         }
 
         .lobby-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 40px;
             color: var(--primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            letter-spacing: -1px;
+        }
+
+        .lobby-title span:last-child {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0;
         }
 
         .user-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 20px;
         }
 
         .user-card {
-            background: var(--bg-color);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .user-card:hover {
             border-color: var(--primary);
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(92, 103, 242, 0.15);
         }
 
         .user-card.selected {
             border-color: var(--primary);
-            background: rgba(92, 103, 242, 0.1);
+            background: rgba(92, 103, 242, 0.05);
+            box-shadow: 0 0 0 2px var(--primary);
         }
 
         .user-card .avatar {
-            width: 60px;
-            height: 60px;
-            background: var(--panel-bg);
+            width: 56px;
+            height: 56px;
+            background: #f1f3f5;
             border-radius: 50%;
-            margin: 0 auto 10px;
+            margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -96,43 +115,56 @@
 
         .user-card .username {
             font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
             word-break: break-all;
-            color: #adb5bd;
         }
 
-        .login-box h2 { margin-bottom: 10px; font-size: 20px; }
-        .login-box p { color: #adb5bd; font-size: 13px; margin-bottom: 20px; }
+        .login-box h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; }
+        .login-box p { color: var(--text-secondary); font-size: 13px; margin: 0 0 24px 0; }
 
         .input-field {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: #1a1d20;
-            color: white;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: var(--text-light);
             box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(92, 103, 242, 0.1);
         }
 
         .btn {
             width: 100%;
             padding: 12px;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 700;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
         .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary:hover:not(:disabled) { background: #4a52d5; transform: translateY(-1px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .signup-section {
             margin-top: 40px;
-            padding-top: 20px;
+            padding-top: 24px;
             border-top: 1px solid var(--border-color);
         }
+
+        .signup-section h2 { font-size: 18px; margin: 0 0 16px 0; }
 
         /* 대시보드 화면 스타일 */
         #dashboardContainer {
@@ -140,6 +172,7 @@
             width: 100%;
             height: 100%;
             flex-direction: row;
+            background: #ffffff;
         }
 
         .top-bar {
@@ -153,65 +186,67 @@
             z-index: 100;
         }
 
-        .user-info { color: #adb5bd; font-size: 13px; }
+        .user-info { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
         
-        .left-panel { flex: 2; padding: 20px; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; margin-top: 60px; }
+        .left-panel { flex: 2; padding: 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; margin-top: 60px; }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
-        .right-panel { flex: 1; background-color: var(--panel-bg); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 60px; }
+        .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 60px; }
         
-        .input-section { background: var(--bg-color); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .input-section { background: #f1f3f5; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; }
         .input-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
         .search-group { display: flex; gap: 8px; align-items: center; }
         
-        input[type="text"], input[type="number"], input[type="search"] { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--panel-bg); color: white; font-size: 13px; outline: none; }
+        input[type="text"], input[type="number"], input[type="search"] { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff; color: var(--text-light); font-size: 13px; outline: none; }
         #title { flex: 2; }
         #imgUrl { flex: 1; }
-        #searchInput { flex: 1; background: #1a1d20; border-color: var(--primary); }
+        #searchInput { flex: 1; border-color: var(--primary); }
         
-        .type-select { display: flex; align-items: center; gap: 5px; font-size: 14px; color: #adb5bd; cursor: pointer; }
-        .add-btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .type-select { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-secondary); cursor: pointer; }
+        .add-btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .add-btn:hover { background: #4a52d5; transform: translateY(-1px); }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
-        .card { background: var(--bg-color); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; }
-        .card.is-manga { border: 5px solid var(--manga-color) !important; }
+        .card { background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .card.is-manga { border: 4px solid var(--manga-color) !important; }
         .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; cursor: grab; }
         .card-body { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 12px; }
+        .card-title { font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 12px; color: var(--text-light); }
         
         .manga-progress-container { margin-top: 5px; }
-        .progress-text { font-size: 11px; color: #adb5bd; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .progress-bar-bg { width: 100%; height: 8px; background: #495057; border-radius: 4px; overflow: hidden; }
+        .progress-text { font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--manga-color); transition: width 0.3s ease; }
         .manga-edit-group { display: flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 11px; }
-        .manga-edit-group input { width: 40px; padding: 3px; font-size: 11px; text-align: center; background: #1a1d20; color: white; border: 1px solid var(--border-color); border-radius: 4px; }
+        .manga-edit-group input { width: 40px; padding: 3px; font-size: 11px; text-align: center; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); border-radius: 4px; }
 
         .series-list { display: flex; flex-direction: column; gap: 6px; }
-        .season-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 900; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .season-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 900; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        .st-upcoming { background-color: var(--color-upcoming); color: var(--txt-dark); }
-        .st-towatch { background-color: var(--color-towatch); color: var(--txt-dark); }
-        .st-watched { background-color: var(--color-watched); color: var(--txt-dark); }
+        .st-upcoming { background-color: var(--color-upcoming); }
+        .st-towatch { background-color: var(--color-towatch); color: #333; }
+        .st-watched { background-color: var(--color-watched); }
         .status-btn { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 3px; cursor: pointer; padding: 0 5px; font-size: 11px; color: #333; font-weight: bold; }
         
         .add-season-form { display: flex; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
-        .add-season-form input { padding: 6px; font-size: 11px; border-radius: 4px; flex: 1; background: #1a1d20; color: white; border: 1px solid var(--border-color); }
+        .add-season-form input { padding: 6px; font-size: 11px; border-radius: 4px; flex: 1; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); }
         
-        .stats-bar { background: var(--bg-color); padding: 15px 10px; border-radius: 12px; border: 2px solid var(--primary); display: flex; justify-content: space-around; font-size: 15px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .stat-item { display: flex; align-items: center; gap: 6px; }
+        .stats-bar { background: #ffffff; padding: 15px 10px; border-radius: 12px; border: 2px solid var(--primary); display: flex; justify-content: space-around; font-size: 15px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .stat-item { display: flex; align-items: center; gap: 6px; color: var(--text-light); }
         .stat-item span { color: var(--primary); font-size: 20px; margin-left: 2px; }
 
         .tier-board { display: flex; flex-direction: column; gap: 10px; }
-        .tier-row { display: flex; min-height: 90px; border-radius: 5px; overflow: hidden; background: var(--bg-color); border: 1px solid var(--border-color); }
+        .tier-row { display: flex; min-height: 90px; border-radius: 8px; overflow: hidden; background: #ffffff; border: 1px solid var(--border-color); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .tier-header { width: 70px; min-width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; position: relative; }
-        .tier-name-input { background: transparent !important; border: none !important; color: #000 !important; font-weight: 800; text-align: center; width: 90%; outline: none; font-size: 16px; padding: 5px 0; box-shadow: none !important; }
-        .tier-list { flex: 1; display: flex; flex-wrap: wrap; padding: 8px; gap: 8px; background: rgba(0,0,0,0.2); min-width: 100px; }
+        .tier-name-input { background: transparent !important; border: none !important; color: white !important; font-weight: 800; text-align: center; width: 90%; outline: none; font-size: 16px; padding: 5px 0; box-shadow: none !important; }
+        .tier-list { flex: 1; display: flex; flex-wrap: wrap; padding: 8px; gap: 8px; background: #f8f9fa; min-width: 100px; }
         .tier-item { width: 50px; aspect-ratio: 2/3; cursor: grab; position: relative; }
-        .tier-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 3px; }
-        .tier-item.is-manga img { border: 3px solid var(--manga-color) !important; }
-        .status-mark { position: absolute; top: 8px; right: 8px; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.6); pointer-events: none; }
+        .tier-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+        .tier-item.is-manga img { border: 2px solid var(--manga-color) !important; }
+        .status-mark { position: absolute; top: 8px; right: 8px; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); pointer-events: none; }
         
-        #customModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--panel-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+        #customModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-content { background: #ffffff; padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body ondragover="event.preventDefault()">
@@ -220,12 +255,10 @@
     <div id="lobbyContainer">
         <div class="lobby-left">
             <div class="lobby-title">
-                <span>📚 Anime Archive</span>
-                <span style="font-size: 14px; color: #adb5bd;">가입된 계정을 클릭하세요</span>
+                <span>Anime Archive</span>
+                <span>계정 선택</span>
             </div>
-            <div class="user-grid" id="userGrid">
-                <!-- 가입된 계정 목록이 여기에 표시됨 -->
-            </div>
+            <div class="user-grid" id="userGrid"></div>
         </div>
         <div class="lobby-right">
             <div class="login-box">
@@ -234,67 +267,53 @@
                 <input type="password" id="loginPassword" class="input-field" placeholder="비밀번호" onkeypress="if(event.key==='Enter') login()">
                 <button class="btn btn-primary" id="loginBtn" onclick="login()" disabled>로그인</button>
             </div>
-
             <div class="signup-section">
-                <h2 style="font-size: 18px; margin-bottom: 15px;">새 계정 만들기</h2>
-                <input type="email" id="signupEmail" class="input-field" placeholder="이메일">
+                <h2>새 계정 만들기</h2>
+                <input type="text" id="signupId" class="input-field" placeholder="아이디">
                 <input type="password" id="signupPassword" class="input-field" placeholder="비밀번호">
-                <button class="btn btn-primary" style="background: #495057;" onclick="signup()">회원가입</button>
+                <button class="btn btn-primary" style="background: #adb5bd;" onclick="signup()">회원가입</button>
             </div>
-            <div id="lobbyError" style="color: var(--danger); font-size: 12px; text-align: center; margin-top: 10px;"></div>
         </div>
     </div>
 
     <!-- 대시보드 화면 -->
     <div id="dashboardContainer">
         <div class="top-bar">
-            <div class="user-info">
-                <span id="userEmail"></span>
-            </div>
+            <div class="user-info"><span id="userDisplayId"></span></div>
             <button class="add-btn" style="background: var(--danger); padding: 8px 12px; font-size: 12px;" onclick="confirmDeleteAccount()">계정 삭제</button>
-            <button class="add-btn" style="background: #495057; padding: 8px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
+            <button class="add-btn" style="background: #adb5bd; padding: 8px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
         </div>
-
         <div class="left-panel" ondrop="drop(event, 'none')">
             <div class="input-section">
                 <div class="input-group">
                     <input type="text" id="title" placeholder="제목 (Enter)" onkeypress="if(event.key==='Enter') addItem()">
                     <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem()">
                     <label class="type-select"><input type="checkbox" id="isManga" onchange="toggleMangaInput()"> 만화</label>
-                    <div id="mangaOnlyInput" style="display:none; gap:5px;">
-                        <input type="number" id="totalVol" placeholder="전체 권수" style="width:70px;">
-                    </div>
+                    <div id="mangaOnlyInput" style="display:none; gap:5px;"><input type="number" id="totalVol" placeholder="전체 권수" style="width:70px;"></div>
                     <button class="add-btn" onclick="addItem()">등록</button>
                 </div>
-                <div class="search-group">
-                    <input type="search" id="searchInput" placeholder="🔍 제목으로 검색..." oninput="renderAll()">
-                </div>
+                <div class="search-group"><input type="search" id="searchInput" placeholder="🔍 제목으로 검색..." oninput="renderAll()"></div>
             </div>
-            
-            <div class="dashboard-container">
-                <div class="dashboard" id="mainDashboard"></div>
-            </div>
+            <div class="dashboard-container"><div class="dashboard" id="mainDashboard"></div></div>
         </div>
-
         <div class="right-panel">
-            <h3 style="text-align:center; color:#adb5bd; margin-bottom:15px;">애니 티어리스트</h3>
+            <h3 style="text-align:center; color:var(--text-light); margin-bottom:15px;">애니 티어리스트</h3>
             <div class="tier-board" id="tierBoard"></div>
             <button class="add-btn" style="margin-top:15px; width:100%;" onclick="addTierRow()">+ 새로운 등급 추가</button>
             <div class="stats-bar" id="statsBar">
-                <div class="stat-item">📚 전체: <span id="statTotal">0</span></div>
-                <div class="stat-item">👀 시청 중: <span id="statWatching">0</span></div>
-                <div class="stat-item">✅ 시청 완료: <span id="statCompleted">0</span></div>
+                <div class="stat-item">전체: <span id="statTotal">0</span></div>
+                <div class="stat-item">시청 중: <span id="statWatching">0</span></div>
+                <div class="stat-item">시청 완료: <span id="statCompleted">0</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 모달 -->
     <div id="customModal">
         <div class="modal-content">
-            <p id="modalMsg" style="font-weight:bold; margin-bottom: 20px;"></p>
+            <p id="modalMsg" style="font-weight:bold; margin-bottom: 20px; color: var(--text-light);"></p>
             <div style="display:flex; gap:10px; justify-content:center;">
                 <button class="add-btn" style="background:var(--danger);" id="modalConfirm">확인</button>
-                <button class="add-btn" style="background:#6c757d;" onclick="closeModal()">취소</button>
+                <button class="add-btn" style="background:#adb5bd;" onclick="closeModal()">취소</button>
             </div>
         </div>
     </div>
@@ -314,22 +333,18 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    let animeData = [];
-    let tierSettings = [];
-    let currentUser = null;
-    let selectedEmail = null;
+    let animeData = [], tierSettings = [], currentUser = null, selectedId = null;
     const statusCfg = {'📅': {cls:'st-upcoming', next:'👀'}, '👀': {cls:'st-towatch', next:'✅'}, '✅': {cls:'st-watched', next:'📅'}};
 
-    // 로그인 유지 설정 (LOCAL)
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    // 인증 상태 감시
     auth.onAuthStateChanged((user) => {
         if (user) {
             currentUser = user;
             document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'flex';
-            document.getElementById('userEmail').textContent = user.email;
+            const displayId = user.email.split('@')[0];
+            document.getElementById('userDisplayId').textContent = displayId;
             loadUserData(user.uid);
         } else {
             currentUser = null;
@@ -339,67 +354,40 @@
         }
     });
 
-    // 가입된 사용자 목록 로드 (공용 경로)
     function loadUserList() {
-        db.ref('registered_users').on('value', (snapshot) => {
-            const users = snapshot.val() || {};
+        db.ref('registered_ids').on('value', (snapshot) => {
+            const ids = snapshot.val() || {};
             const grid = document.getElementById('userGrid');
             grid.innerHTML = '';
-            
-            Object.values(users).forEach(email => {
+            Object.values(ids).forEach(id => {
                 const card = document.createElement('div');
-                card.className = 'user-card';
-                if (selectedEmail === email) card.classList.add('selected');
-                card.onclick = () => selectUser(email);
-                card.innerHTML = `
-                    <div class="avatar">👤</div>
-                    <div class="username">${email}</div>
-                `;
+                card.className = 'user-card' + (selectedId === id ? ' selected' : '');
+                card.onclick = () => { selectedId = id; document.getElementById('selectedUserText').textContent = id; document.getElementById('loginBtn').disabled = false; document.getElementById('loginPassword').focus(); loadUserList(); };
+                card.innerHTML = `<div class="avatar">👤</div><div class="username">${id}</div>`;
                 grid.appendChild(card);
             });
         });
     }
 
-    function selectUser(email) {
-        selectedEmail = email;
-        document.getElementById('selectedUserText').textContent = email;
-        document.getElementById('loginBtn').disabled = false;
-        document.getElementById('loginPassword').focus();
-        loadUserList(); // UI 갱신
-    }
-
     function signup() {
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        if (!email || !password) return alert('이메일과 비밀번호를 입력하세요.');
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // 가입 성공 시 목록에 추가
-                const safeEmail = email.replace(/\./g, ',');
-                db.ref('registered_users/' + safeEmail).set(email);
-                document.getElementById('signupEmail').value = '';
-                document.getElementById('signupPassword').value = '';
-            })
-            .catch(err => alert(err.message));
+        const id = document.getElementById('signupId').value, password = document.getElementById('signupPassword').value;
+        if (!id || !password) return alert('아이디와 비밀번호를 입력하세요.');
+        const email = id + "@archive.com";
+        auth.createUserWithEmailAndPassword(email, password).then(() => {
+            db.ref('registered_ids/' + id).set(id);
+            document.getElementById('signupId').value = ''; document.getElementById('signupPassword').value = '';
+        }).catch(err => alert(err.message));
     }
 
     function login() {
-        if (!selectedEmail) return;
-        const password = document.getElementById('loginPassword').value;
-        auth.signInWithEmailAndPassword(selectedEmail, password)
-            .then(() => {
-                document.getElementById('loginPassword').value = '';
-            })
-            .catch(err => alert('비밀번호가 틀렸거나 오류가 발생했습니다.'));
+        if (!selectedId) return;
+        const email = selectedId + "@archive.com";
+        auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value)
+            .then(() => document.getElementById('loginPassword').value = '')
+            .catch(() => alert('비밀번호가 틀렸거나 오류가 발생했습니다.'));
     }
 
-    function logout() {
-        auth.signOut();
-        selectedEmail = null;
-        document.getElementById('selectedUserText').textContent = '계정을 선택해주세요';
-        document.getElementById('loginBtn').disabled = true;
-    }
+    function logout() { auth.signOut(); selectedId = null; document.getElementById('selectedUserText').textContent = '계정을 선택해주세요'; document.getElementById('loginBtn').disabled = true; }
 
     function confirmDeleteAccount() {
         const modal = document.getElementById('customModal');
@@ -410,93 +398,48 @@
 
     function deleteAccount() {
         if (!currentUser) return;
-        const email = currentUser.email;
-        const uid = currentUser.uid;
-        const safeEmail = email.replace(/\./g, ',');
-
-        // 1. 데이터 삭제
+        const id = currentUser.email.split('@')[0], uid = currentUser.uid;
         db.ref(`users/${uid}`).remove();
-        // 2. 목록에서 삭제
-        db.ref(`registered_users/${safeEmail}`).remove();
-        // 3. 계정 삭제
-        currentUser.delete().then(() => {
-            closeModal();
-            alert('계정이 삭제되었습니다.');
-        }).catch(err => {
-            alert('보안을 위해 다시 로그인 후 삭제해주세요.');
-            logout();
-        });
+        db.ref(`registered_ids/${id}`).remove();
+        currentUser.delete().then(() => { closeModal(); alert('계정이 삭제되었습니다.'); }).catch(() => { alert('보안을 위해 다시 로그인 후 삭제해주세요.'); logout(); });
     }
 
     function loadUserData(uid) {
         db.ref(`users/${uid}`).on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                animeData = data.animeData || [];
-                tierSettings = data.tierSettings || [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}];
-            } else {
-                animeData = [];
-                tierSettings = [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}];
-            }
+            animeData = data ? (data.animeData || []) : [];
+            tierSettings = data ? (data.tierSettings || [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}]) : [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}];
             renderAll();
         });
     }
 
-    function saveData() {
-        if (!currentUser) return;
-        db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings });
-    }
-
-    // 기존 대시보드 로직 (동일)
+    function saveData() { if (currentUser) db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings }); }
     function toggleMangaInput() { document.getElementById('mangaOnlyInput').style.display = document.getElementById('isManga').checked ? 'flex' : 'none'; }
     function renderAll() { displayItems(); renderTierBoard(); updateStats(); }
     function addItem() {
-        const title = document.getElementById('title').value;
-        const imgUrl = document.getElementById('imgUrl').value || 'https://via.placeholder.com/200x300?text=No+Poster';
-        const isManga = document.getElementById('isManga').checked;
-        const totalVol = parseInt(document.getElementById('totalVol').value) || 0;
+        const title = document.getElementById('title').value, imgUrl = document.getElementById('imgUrl').value || 'https://via.placeholder.com/200x300?text=No+Poster', isManga = document.getElementById('isManga').checked, totalVol = parseInt(document.getElementById('totalVol').value) || 0;
         if (!title.trim()) return;
         animeData.push({ id: Date.now(), title, imgUrl, tierId: 'none', isManga, currentVol: 0, totalVol, seasons: isManga ? [] : [{ name: '1기', status: '👀' }] });
         saveData();
-        document.getElementById('title').value = ''; document.getElementById('imgUrl').value = ''; 
-        document.getElementById('isManga').checked = false; document.getElementById('totalVol').value = '';
-        toggleMangaInput();
+        document.getElementById('title').value = ''; document.getElementById('imgUrl').value = ''; document.getElementById('isManga').checked = false; document.getElementById('totalVol').value = ''; toggleMangaInput();
     }
-    function updateMangaProgress(id, current, total) {
-        const item = animeData.find(a => a.id === id);
-        if(item) { item.currentVol = parseInt(current) || 0; item.totalVol = parseInt(total) || 0; saveData(); }
-    }
+    function updateMangaProgress(id, current, total) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(current) || 0; item.totalVol = parseInt(total) || 0; saveData(); } }
     function displayItems() {
-        const dashboard = document.getElementById('mainDashboard');
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const dashboard = document.getElementById('mainDashboard'), searchTerm = document.getElementById('searchInput').value.toLowerCase();
         dashboard.innerHTML = "";
-        const filteredData = animeData.filter(item => item.title.toLowerCase().includes(searchTerm));
-        filteredData.forEach(item => {
+        animeData.filter(item => item.title.toLowerCase().includes(searchTerm)).forEach(item => {
             const card = document.createElement('div');
             card.className = `card ${item.isManga ? 'is-manga' : ''}`;
             const tierInfo = tierSettings.find(t => t.id === item.tierId);
             const badge = tierInfo ? `<div class="status-mark" style="background:${tierInfo.color};">${tierInfo.name}</div>` : '';
-            let contentHtml = item.isManga ? `
-                <div class="manga-progress-container">
-                    <div class="progress-text"><span>진행도</span> <span>${item.totalVol > 0 ? Math.round((item.currentVol/item.totalVol)*100) : 0}%</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${item.totalVol > 0 ? (item.currentVol/item.totalVol)*100 : 0}%"></div></div>
-                    <div class="manga-edit-group">
-                        <input type="number" value="${item.currentVol}" oninput="updateMangaProgress(${item.id}, this.value, ${item.totalVol})"> / 
-                        <input type="number" value="${item.totalVol}" oninput="updateMangaProgress(${item.id}, ${item.currentVol}, this.value)"> 권
-                    </div>
-                </div>` : `
-                <div class="series-list">${(item.seasons || []).map((s, idx) => `<div class="season-item ${statusCfg[s.status].cls}"><button style="background:none; border:none; color:inherit; cursor:pointer;" onclick="deleteSeason(${item.id}, ${idx})">×</button><span style="flex:1; margin:0 8px;">${s.name}</span><button class="status-btn" onclick="cycleStatus(${item.id}, ${idx})">${s.status}</button></div>`).join('')}</div>
-                <div class="add-season-form"><input type="text" placeholder="기수명" id="si-${item.id}" onkeypress="if(event.key==='Enter') addNewSeason(${item.id})"></div>`;
+            let contentHtml = item.isManga ? `<div class="manga-progress-container"><div class="progress-text"><span>진행도</span> <span>${item.totalVol > 0 ? Math.round((item.currentVol/item.totalVol)*100) : 0}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${item.totalVol > 0 ? (item.currentVol/item.totalVol)*100 : 0}%"></div></div><div class="manga-edit-group"><input type="number" value="${item.currentVol}" oninput="updateMangaProgress(${item.id}, this.value, ${item.totalVol})"> / <input type="number" value="${item.totalVol}" oninput="updateMangaProgress(${item.id}, ${item.currentVol}, this.value)"> 권</div></div>` : `<div class="series-list">${(item.seasons || []).map((s, idx) => `<div class="season-item ${statusCfg[s.status].cls}"><button style="background:none; border:none; color:inherit; cursor:pointer;" onclick="deleteSeason(${item.id}, ${idx})">×</button><span style="flex:1; margin:0 8px;">${s.name}</span><button class="status-btn" onclick="cycleStatus(${item.id}, ${idx})">${s.status}</button></div>`).join('')}</div><div class="add-season-form"><input type="text" placeholder="기수명" id="si-${item.id}" onkeypress="if(event.key==='Enter') addNewSeason(${item.id})"></div>`;
             card.innerHTML = `${badge}<img src="${item.imgUrl}" draggable="true" ondragstart="drag(event, ${item.id})" onclick="moveNextTier(${item.id})"><div class="card-body"><div class="card-title">${item.title}</div>${contentHtml}<button onclick="openDeleteModal('item', ${item.id})" style="border:none; background:none; color:var(--danger); font-size:10px; cursor:pointer; margin-top:auto; padding-top:15px; width:100%;">삭제</button></div>`;
             dashboard.appendChild(card);
         });
     }
     function updateStats() {
         let total = animeData.length, watching = 0, completed = 0;
-        animeData.forEach(item => {
-            if (item.isManga) { if (item.totalVol > 0 && item.currentVol >= item.totalVol) completed++; else if (item.currentVol > 0) watching++; }
-            else { const seasons = item.seasons || []; if (seasons.length > 0) { if (seasons.some(s => s.status === '👀')) watching++; else completed++; } }
-        });
+        animeData.forEach(item => { if (item.isManga) { if (item.totalVol > 0 && item.currentVol >= item.totalVol) completed++; else if (item.currentVol > 0) watching++; } else { const seasons = item.seasons || []; if (seasons.length > 0) { if (seasons.some(s => s.status === '👀')) watching++; else completed++; } } });
         document.getElementById('statTotal').innerText = total; document.getElementById('statWatching').innerText = watching; document.getElementById('statCompleted').innerText = completed;
     }
     function renderTierBoard() {
@@ -504,37 +447,21 @@
         tierSettings.forEach(tier => {
             const row = document.createElement('div'); row.className = 'tier-row';
             const tierItems = animeData.filter(a => a.tierId === tier.id);
-            row.innerHTML = `<div class="tier-header" style="background-color:${tier.color}">
-                <input type="text" class="tier-name-input" value="${tier.name || '등급'}" onchange="updateTier('${tier.id}', 'name', this.value)">
-                <button onclick="openDeleteModal('tier', '${tier.id}')" style="font-size:10px; border:none; background:none; cursor:pointer; margin-top:5px;">✖</button></div>
-                <div class="tier-list" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, '${tier.id}')">
-                ${tierItems.map(a => `<div class="tier-item ${a.isManga ? 'is-manga' : ''}" draggable="true" ondragstart="drag(event, ${a.id})" ondrop="dropOnItem(event, ${a.id})"><img src="${a.imgUrl}"></div>`).join('')}</div>`;
+            row.innerHTML = `<div class="tier-header" style="background-color:${tier.color}"><input type="text" class="tier-name-input" value="${tier.name || '등급'}" onchange="updateTier('${tier.id}', 'name', this.value)"><button onclick="openDeleteModal('tier', '${tier.id}')" style="font-size:10px; border:none; background:none; cursor:pointer; margin-top:5px; color:white;">✖</button></div><div class="tier-list" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, '${tier.id}')">${tierItems.map(a => `<div class="tier-item ${a.isManga ? 'is-manga' : ''}" draggable="true" ondragstart="drag(event, ${a.id})" ondrop="dropOnItem(event, ${a.id})"><img src="${a.imgUrl}"></div>`).join('')}</div>`;
             board.appendChild(row);
         });
     }
     function drag(ev, id) { ev.dataTransfer.setData("itemId", id.toString()); }
-    function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.style.background = "rgba(92, 103, 242, 0.3)"; }
-    function dragLeave(ev) { ev.currentTarget.style.background = "rgba(0,0,0,0.2)"; }
-    function drop(ev, tierId) {
-        ev.preventDefault(); ev.currentTarget.style.background = "rgba(0,0,0,0.2)";
-        const id = parseInt(ev.dataTransfer.getData("itemId"));
-        const idx = animeData.findIndex(a => a.id === id);
-        if (idx > -1) { animeData[idx].tierId = tierId; const item = animeData.splice(idx, 1)[0]; animeData.push(item); saveData(); }
-    }
-    function dropOnItem(ev, targetId) {
-        ev.preventDefault(); ev.stopPropagation();
-        const draggedId = parseInt(ev.dataTransfer.getData("itemId"));
-        if (draggedId === targetId) return;
-        const dIdx = animeData.findIndex(a => a.id === draggedId);
-        const tIdx = animeData.findIndex(a => a.id === targetId);
-        if (dIdx > -1 && tIdx > -1) { animeData[dIdx].tierId = animeData[tIdx].tierId; const item = animeData.splice(dIdx, 1)[0]; const ntIdx = animeData.findIndex(a => a.id === targetId); animeData.splice(ntIdx, 0, item); saveData(); }
-    }
+    function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.style.background = "rgba(92, 103, 242, 0.05)"; }
+    function dragLeave(ev) { ev.currentTarget.style.background = "#f8f9fa"; }
+    function drop(ev, tierId) { ev.preventDefault(); ev.currentTarget.style.background = "#f8f9fa"; const id = parseInt(ev.dataTransfer.getData("itemId")), idx = animeData.findIndex(a => a.id === id); if (idx > -1) { animeData[idx].tierId = tierId; const item = animeData.splice(idx, 1)[0]; animeData.push(item); saveData(); } }
+    function dropOnItem(ev, targetId) { ev.preventDefault(); ev.stopPropagation(); const draggedId = parseInt(ev.dataTransfer.getData("itemId")), dIdx = animeData.findIndex(a => a.id === draggedId), tIdx = animeData.findIndex(a => a.id === targetId); if (dIdx > -1 && tIdx > -1) { animeData[dIdx].tierId = animeData[tIdx].tierId; const item = animeData.splice(dIdx, 1)[0], ntIdx = animeData.findIndex(a => a.id === targetId); animeData.splice(ntIdx, 0, item); saveData(); } }
     function deleteSeason(id, idx) { animeData.find(a => a.id === id).seasons.splice(idx, 1); saveData(); }
     function addNewSeason(id) { const input = document.getElementById(`si-${id}`); if(!input.value) return; animeData.find(a => a.id === id).seasons.push({name:input.value, status:'📅'}); saveData(); setTimeout(() => { document.getElementById(`si-${id}`).focus(); document.getElementById(`si-${id}`).value = ''; }, 50); }
     function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); }
     function updateTier(id, f, v) { tierSettings.find(t => t.id === id)[f] = v; saveData(); }
     function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: "등급", color: "#adb5bd" }); saveData(); }
-    function moveNextTier(id) { const item = animeData.find(x => x.id === id); const ids = ['none', ...tierSettings.map(t => t.id)]; item.tierId = ids[(ids.indexOf(item.tierId) + 1) % ids.length]; saveData(); }
+    function moveNextTier(id) { const item = animeData.find(x => x.id === id), ids = ['none', ...tierSettings.map(t => t.id)]; item.tierId = ids[(ids.indexOf(item.tierId) + 1) % ids.length]; saveData(); }
     function openDeleteModal(type, id) { const modal = document.getElementById('customModal'); document.getElementById('modalMsg').innerText = "삭제하시겠습니까?"; modal.style.display = 'flex'; document.getElementById('modalConfirm').onclick = () => { if(type === 'item') animeData = animeData.filter(a => a.id !== id); else { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); } saveData(); closeModal(); }; }
     function closeModal() { document.getElementById('customModal').style.display = 'none'; }
 </script>
