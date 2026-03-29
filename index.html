@@ -53,13 +53,6 @@
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
         .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 50px; height: calc(100vh - 50px); padding-bottom: 100px; }
         
-        /* 패치노트 전용 스타일 */
-        .patch-box { padding: 12px; background: #f8f9fa; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 10px; margin-bottom: 15px; }
-        .patch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .patch-version { color: var(--primary); font-weight: 800; font-size: 12px; }
-        .patch-content { font-size: 11px; line-height: 1.5; color: var(--text-light); white-space: pre-wrap; }
-        .stats-row { display: flex; gap: 20px; font-size: 13px; font-weight: 700; margin: 10px 0; padding: 0 5px; }
-
         .top-bar .input-group { display: flex; gap: 6px; align-items: center; flex: 1; margin: 0; }
         .top-bar .search-group { display: flex; gap: 6px; align-items: center; flex: 0.8; }
         input[type="text"], input[type="number"], input[type="search"] { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; height: 28px; box-sizing: border-box; }
@@ -120,6 +113,7 @@
     </style>
 </head>
 <body>
+    <!-- 로그인 로비 -->
     <div id="lobbyContainer">
         <div class="lobby-left">
             <div class="lobby-title">
@@ -148,6 +142,7 @@
         </div>
     </div>
 
+    <!-- 대시보드 -->
     <div id="dashboardContainer">
         <div class="left-panel">
             <div class="top-bar" style="position: relative; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; width: calc(100% + 40px); border-bottom: 1px solid var(--border-color);">
@@ -171,25 +166,6 @@
                 <button class="btn btn-primary" style="width: 80px; padding: 6px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
             </div>
             
-            <div class="stats-row">
-                <span>전체: <span id="statTotal">0</span></span>
-                <span>시청 중: <span id="statWatching">0</span></span>
-                <span>완료: <span id="statDone">0</span></span>
-            </div>
-
-            <div class="patch-box">
-                <div class="patch-header">
-                    <span class="patch-version" id="currentVer">Patch Note v1.0.0</span>
-                    <button id="adminBtn" style="display:none; font-size:9px; cursor:pointer;" onclick="toggleEditor()">수정</button>
-                </div>
-                <div class="patch-content" id="patchDesc">불러오는 중...</div>
-                
-                <div id="adminEditor" style="display:none; margin-top:10px;">
-                    <textarea id="patchInput" style="width:100%; height:60px; font-size:11px; padding:5px;"></textarea>
-                    <button class="add-btn" style="width:100%; margin-top:5px;" onclick="savePatch()">패치 저장 및 버전업</button>
-                </div>
-            </div>
-
             <div class="dashboard-container">
                 <div class="dashboard" id="dashboard"></div>
             </div>
@@ -220,8 +196,6 @@
         let selectedUser = null;
         let animeData = [];
         let tierSettings = [];
-        let curVer = "1.0.0";
-        const ADMIN_UID = "USER_UID_HERE"; // 여기에 지민님 본인 UID를 넣으세요
         const statusCfg = { 'upcoming': { emoji: '📅', next: 'towatch' }, 'towatch': { emoji: '👀', next: 'watched' }, 'watched': { emoji: '✅', next: 'upcoming' } };
 
         auth.onAuthStateChanged(user => {
@@ -301,23 +275,9 @@
             document.getElementById('dashboardContainer').style.display = 'flex';
             document.getElementById('userDisplay').textContent = `${currentUser.email.split('@')[0]} 님`;
             
-            // 운영자 확인
-            if(currentUser.uid ===JIMIN) document.getElementById('adminBtn').style.display = 'block';
-
-            // 패치노트 실시간 로드
-            db.ref('system/patchNote').on('value', snap => {
-                const data = snap.val();
-                if(data) {
-                    curVer = data.version;
-                    document.getElementById('currentVer').textContent = `Patch Note v${data.version}`;
-                    document.getElementById('patchDesc').textContent = data.content;
-                }
-            });
-
             db.ref(`users/${currentUser.uid}/animeData`).on('value', snapshot => {
                 animeData = snapshot.val() ? Object.values(snapshot.val()) : [];
                 renderDashboard();
-                updateStats(); // 통계 업데이트
             });
             
             db.ref(`users/${currentUser.uid}/tierSettings`).on('value', snapshot => {
@@ -328,43 +288,6 @@
                     { id: 't4', name: 'C', color: '#74c0fc' }
                 ];
                 renderTierBoard();
-            });
-        }
-
-        // 통계 업데이트 기능
-        function updateStats() {
-            const total = animeData.length;
-            const completed = animeData.filter(a => {
-                if(a.isManga || a.isEpisode) return a.currentVol >= a.totalVol;
-                return a.seasons && a.seasons.length > 0 && a.seasons.every(s => s.status === 'watched');
-            }).length;
-            const watching = total - completed;
-
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statWatching').textContent = watching;
-            document.getElementById('statDone').textContent = completed;
-        }
-
-        // 운영자 패치 기능
-        function toggleEditor() {
-            const ed = document.getElementById('adminEditor');
-            document.getElementById('patchInput').value = document.getElementById('patchDesc').textContent;
-            ed.style.display = ed.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function savePatch() {
-            const content = document.getElementById('patchInput').value;
-            let v = curVer.split('.').map(Number);
-            v[2] += 1; // 마지막 자리 +1
-            const newVer = v.join('.');
-
-            db.ref('system/patchNote').set({
-                content: content,
-                version: newVer,
-                updatedAt: new Date().toISOString()
-            }).then(() => {
-                alert('패치가 완료되었습니다.');
-                document.getElementById('adminEditor').style.display = 'none';
             });
         }
 
@@ -423,15 +346,13 @@
                     </div>`;
                 } else {
                     content += `<div class="series-list">`;
-                    if(item.seasons) {
-                        item.seasons.forEach((s, idx) => {
-                            content += `<div class="season-item st-${s.status}">
-                                <span>기수 ${idx + 1}</span>
-                                <button class="status-btn" onclick="cycleStatus('${item.id}', ${idx})">${statusCfg[s.status].emoji}</button>
-                                <button class="status-btn" onclick="deleteSeason('${item.id}', ${idx})">×</button>
-                            </div>`;
-                        });
-                    }
+                    item.seasons.forEach((s, idx) => {
+                        content += `<div class="season-item st-${s.status}">
+                            <span>기수 ${idx + 1}</span>
+                            <button class="status-btn" onclick="cycleStatus('${item.id}', ${idx})">${statusCfg[s.status].emoji}</button>
+                            <button class="status-btn" onclick="deleteSeason('${item.id}', ${idx})">×</button>
+                        </div>`;
+                    });
                     content += `</div>
                         <div class="add-season-form">
                             <input type="text" placeholder="기수 추가" onkeypress="if(event.key==='Enter') addSeason('${item.id}', this.value); this.value='';" />
@@ -457,8 +378,8 @@
                         <input type="color" value="${tier.color}" onchange="updateTierColor('${tier.id}', this.value)" style="width: 30px; height: 20px; border: none; cursor: pointer; margin-top: 4px;" />
                         <div class="tier-color-picker" style="background-color: ${tier.color};"></div>
                     </div>
-                    <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, '${item.id}')"><img src="${item.imgUrl}" alt="${item.title}" /></div>`).join('')}
+                    <div class="tier-items" id="tier-${tier.id}">
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, '${item.id}')" ondrop="dragDrop(event, '${tier.id}')" ondragover="dragOver(event)"><img src="${item.imgUrl}" alt="${item.title}" /></div>`).join('')}
                     </div>
                 `;
                 tierBoard.appendChild(row);
@@ -467,17 +388,17 @@
 
         function updateVol(id, val) { const item = animeData.find(a => a.id === id); item.currentVol = Math.min(parseInt(val) || 0, item.totalVol); saveData(); }
         function updateTotal(id, val) { const item = animeData.find(a => a.id === id); item.totalVol = Math.max(parseInt(val) || 1, 1); item.currentVol = Math.min(item.currentVol, item.totalVol); saveData(); }
-        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if(!item.seasons) item.seasons = []; item.seasons.push({ id: 's' + Date.now(), status: 'upcoming' }); saveData(); }
+        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (name.trim()) { item.seasons.push({ id: 's' + Date.now(), status: 'upcoming' }); saveData(); } }
         function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); item.seasons.splice(idx, 1); saveData(); }
         function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); }
         function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); tier.color = color; saveData(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); }
-        function dragStart(e, id) { e.dataTransfer.setData('itemId', id); }
-        function dragOver(e) { e.preventDefault(); }
+        function dragStart(e, id) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', id); }
+        function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
         function dragDrop(e, tierId) { e.preventDefault(); const itemId = e.dataTransfer.getData('itemId'); const item = animeData.find(a => a.id === itemId); if (item) { item.tierId = tierId; saveData(); } }
         function filterDashboard() { const query = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.card').forEach(card => { const title = card.querySelector('.card-title').textContent.toLowerCase(); card.style.display = title.includes(query) ? '' : 'none'; }); }
-        function saveData() { db.ref(`users/${currentUser.uid}/animeData`).set(animeData.reduce((acc, cur) => ({...acc, [cur.id]: cur}), {})); db.ref(`users/${currentUser.uid}/tierSettings`).set(tierSettings.reduce((acc, cur) => ({...acc, [cur.id]: cur}), {})); renderDashboard(); renderTierBoard(); updateStats(); }
+        function saveData() { db.ref(`users/${currentUser.uid}/animeData`).set(animeData); db.ref(`users/${currentUser.uid}/tierSettings`).set(tierSettings); renderDashboard(); renderTierBoard(); }
         function logout() { auth.signOut().then(() => showLobby()); }
         function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { db.ref(`users/${currentUser.uid}`).remove(); auth.currentUser.delete().then(() => showLobby()); } }
     </script>
