@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,207 +18,68 @@
             --text-secondary: #6c757d;
             --danger: #fa5252;
             --manga-color: #8d6e63;
+            --episode-color: #6c5ce7;
             --color-upcoming: #ff8787; 
             --color-towatch: #ffd43b; 
             --color-watched: #51cf66;
-            --txt-dark: #ffffff;
         }
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; background-color: var(--bg-color); color: var(--text-light); }
         
-        /* 로그인 로비 스타일 */
-        #lobbyContainer {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 100%);
-        }
-
-        .lobby-left {
-            flex: 3;
-            padding: 60px 50px;
-            overflow-y: auto;
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .lobby-right {
-            flex: 1;
-            padding: 50px 40px;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 24px;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.03);
-        }
-
-        .lobby-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 40px;
-            color: var(--primary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            letter-spacing: -1px;
-        }
-
-        .lobby-title span:last-child {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            letter-spacing: 0;
-        }
-
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 20px;
-        }
-
-        .user-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .user-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(92, 103, 242, 0.15);
-        }
-
-        .user-card.selected {
-            border-color: var(--primary);
-            background: rgba(92, 103, 242, 0.05);
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-
-        .user-card .avatar {
-            width: 56px;
-            height: 56px;
-            background: #f1f3f5;
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--primary);
-        }
-
-        .user-card .username {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-light);
-            word-break: break-all;
-        }
-
+        #lobbyContainer { display: flex; width: 100%; height: 100%; background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 100%); position: relative; }
+        .lobby-left { flex: 3; padding: 60px 50px; overflow-y: auto; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .lobby-right { flex: 1; padding: 50px 40px; background: #ffffff; display: flex; flex-direction: column; justify-content: center; gap: 24px; box-shadow: -10px 0 30px rgba(0,0,0,0.03); }
+        .lobby-title { font-size: 32px; font-weight: 800; margin-bottom: 40px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; letter-spacing: -1px; }
+        .lobby-title span:last-child { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
+        .user-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .user-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(92, 103, 242, 0.15); }
+        .user-card.selected { border-color: var(--primary); background: rgba(92, 103, 242, 0.05); box-shadow: 0 0 0 2px var(--primary); }
+        .user-card .avatar { width: 56px; height: 56px; background: #f1f3f5; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary); }
+        .user-card .username { font-size: 14px; font-weight: 600; color: var(--text-light); word-break: break-all; }
         .login-box h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; }
         .login-box p { color: var(--text-secondary); font-size: 13px; margin: 0 0 24px 0; }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: #f8f9fa;
-            color: var(--text-light);
-            box-sizing: border-box;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(92, 103, 242, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
+        .input-field { width: 100%; padding: 12px 16px; margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: #f8f9fa; color: var(--text-light); box-sizing: border-box; font-size: 14px; transition: all 0.2s; }
+        .input-field:focus { outline: none; border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px rgba(92, 103, 242, 0.1); }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 14px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover:not(:disabled) { background: #4a52d5; transform: translateY(-1px); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .signup-section {
-            margin-top: 40px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-color);
-        }
-
+        .signup-section { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-color); }
         .signup-section h2 { font-size: 18px; margin: 0 0 16px 0; }
-
-        /* 대시보드 화면 스타일 */
-        #dashboardContainer {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: row;
-            background: #ffffff;
-        }
-
-        .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            z-index: 100;
-            background: #ffffff;
-            border-bottom: 1px solid var(--border-color);
-            height: 50px;
-            box-sizing: border-box;
-        }
-
-        .user-info { color: var(--text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
         
+        .admin-tab { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+        .admin-tab:hover { background: #4a52d5; transform: translateX(-50%) scale(1.05); }
+        
+        #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .admin-modal-content { background: white; border-radius: 16px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
+        .admin-modal-content h2 { margin: 0 0 20px 0; font-size: 24px; }
+        .admin-modal-content .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        
+        #dashboardContainer { display: none; width: 100%; height: 100%; flex-direction: row; background: #ffffff; }
+        .top-bar { position: fixed; top: 0; left: 0; right: 0; padding: 12px 20px; display: flex; gap: 10px; align-items: center; z-index: 100; background: #ffffff; border-bottom: 1px solid var(--border-color); height: 50px; box-sizing: border-box; }
+        .user-info { color: var(--text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
         .left-panel { flex: 2; padding: 0 20px 20px 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: calc(100vh - 50px); box-sizing: border-box; margin-top: 50px; }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
         .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 50px; height: calc(100vh - 50px); padding-bottom: 100px; }
         
-        .input-section { display: none; }
-        .input-group { display: none; }
-        .search-group { display: flex; gap: 6px; align-items: center; flex: 1; }
         .top-bar .input-group { display: flex; gap: 6px; align-items: center; flex: 1; margin: 0; }
         .top-bar .search-group { display: flex; gap: 6px; align-items: center; flex: 0.8; }
-        
-        input[type="text"], input[type="number"], input[type="search"] { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; height: 28px; box-sizing: border-box; }
-        #title { flex: 1.5; min-width: 120px; }
-        #imgUrl { flex: 1; min-width: 100px; }
-        #searchInput { flex: 0.8; min-width: 80px; border-color: var(--primary); }
-        #totalVol { width: 60px !important; }
+        input[type="text"], input[type="number"], input[type="search"], textarea { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; box-sizing: border-box; }
+        textarea { font-family: 'Pretendard', sans-serif; resize: vertical; }
+        #title { flex: 1.5; min-width: 120px; height: 28px; }
+        #imgUrl { flex: 1; min-width: 100px; height: 28px; }
+        #searchInput { flex: 0.8; min-width: 80px; border-color: var(--primary); height: 28px; }
+        #totalVol { width: 60px !important; height: 28px; }
         
         .type-select { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
         .type-select input { margin: 0; }
         .add-btn { padding: 6px 14px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; font-size: 12px; height: 28px; white-space: nowrap; }
         .add-btn:hover { background: #4a52d5; transform: translateY(-1px); }
-        .top-bar .add-btn { padding: 6px 12px; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
         .card { background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.3s; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
         .card.is-manga { border: 3px solid var(--manga-color) !important; }
+        .card.is-episode { border: 3px solid var(--episode-color) !important; }
         .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
         .card-body { padding: 9px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 6px; color: var(--text-light); line-height: 1.2; }
@@ -229,12 +88,12 @@
         .progress-text { font-size: 9px; color: var(--text-secondary); display: flex; justify-content: space-between; margin-bottom: 2px; }
         .progress-bar-bg { width: 100%; height: 4px; background: #e9ecef; border-radius: 2px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--manga-color); transition: width 0.3s ease; }
+        .episode-progress-fill { background: var(--episode-color); }
         .manga-edit-group { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 9px; }
         .manga-edit-group input { width: 30px; padding: 2px; font-size: 9px; text-align: center; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); border-radius: 3px; }
 
         .series-list { display: flex; flex-direction: column; gap: 1px; }
         .season-item { display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 700; color: white; box-shadow: 0 0.5px 1px rgba(0,0,0,0.1); line-height: 1; }
-        
         .st-upcoming { background-color: var(--color-upcoming); }
         .st-towatch { background-color: var(--color-towatch); color: #333; }
         .st-watched { background-color: var(--color-watched); }
@@ -243,239 +102,463 @@
         .add-season-form { display: flex; gap: 2px; margin-top: 2px; padding-top: 2px; border-top: 1px dashed var(--border-color); }
         .add-season-form input { padding: 2px 3px; font-size: 7px; border-radius: 2px; flex: 1; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); height: 16px; }
         
-        .stats-bar { background: #ffffff; padding: 15px 10px; border-radius: 12px; border: 2px solid var(--primary); display: flex; justify-content: space-around; font-size: 15px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .stat-item { display: flex; align-items: center; gap: 6px; color: var(--text-light); }
-        .stat-item span { color: var(--primary); font-size: 20px; margin-left: 2px; }
-
-        .tier-board { display: flex; flex-direction: column; gap: 6px; }
-        .tier-row { display: flex; min-height: 45px; border-radius: 8px; overflow: hidden; background: #ffffff; border: 1px solid var(--border-color); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .tier-header { width: 50px; min-width: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 3px; position: relative; }
-        .tier-name-input { background: transparent !important; border: none !important; color: white !important; font-weight: 700; text-align: center; width: 90%; outline: none; font-size: 14px; padding: 2px 0; box-shadow: none !important; }
-        .tier-color-picker { position: absolute; right: 0; top: 0; bottom: 0; width: 4px; height: 100%; border: none; border-radius: 0; cursor: pointer; transition: all 0.2s; margin: 0; padding: 0; }
-        .tier-color-picker:hover { opacity: 0.9; }
-        .tier-list { flex: 1; display: flex; flex-wrap: wrap; padding: 4px; gap: 4px; background: #f8f9fa; min-width: 100px; }
-        .tier-item { width: 70px; aspect-ratio: 1 / 1.4; cursor: grab; position: relative; }
-        .tier-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 3px; }
-        .tier-item.is-manga img { border: 1px solid var(--manga-color) !important; }
-        .status-mark { position: absolute; top: 8px; right: 8px; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); pointer-events: none; }
+        .delete-btn { background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: 600; }
+        .delete-btn:hover { background: #e03131; }
         
-        #customModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-content { background: #ffffff; padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .patch-notes-section { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .patch-notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .patch-notes-header h3 { margin: 0; font-size: 13px; font-weight: 700; }
+        .patch-version { font-size: 10px; color: var(--text-secondary); }
+        .patch-notes-content { font-size: 10px; line-height: 1.4; color: var(--text-light); white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; }
+        
+        .tier-board { display: flex; flex-direction: column; gap: 8px; }
+        .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .tier-header { min-width: 60px; background: #f1f3f5; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 4px; }
+        .tier-name { font-weight: 700; font-size: 14px; color: var(--text-light); }
+        .tier-color-input { width: 36px; height: 24px; border: none; border-radius: 4px; cursor: pointer; }
+        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow-x: auto; align-items: center; }
+        .tier-item { width: 70px; height: 98px; flex-shrink: 0; border-radius: 4px; overflow: hidden; cursor: grab; }
+        .tier-item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .tier-add-btn { padding: 8px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; margin-top: 8px; }
+        .tier-add-btn:hover { background: #4a52d5; }
+        
+        .stats-bar { display: flex; gap: 8px; margin-top: 12px; font-size: 11px; }
+        .stat-item { flex: 1; background: #f1f3f5; padding: 8px; border-radius: 4px; text-align: center; }
+        .stat-label { font-size: 9px; color: var(--text-secondary); }
+        .stat-value { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px; }
+        
+        .error-msg { color: var(--danger); font-size: 12px; margin-top: 8px; }
     </style>
 </head>
-<body ondragover="event.preventDefault()">
-
+<body>
     <!-- 로그인 로비 -->
     <div id="lobbyContainer">
         <div class="lobby-left">
             <div class="lobby-title">
-                <span>Anime Archive</span>
-                <span>계정 선택</span>
+                Anime Archive
+                <span>가입된 계정을 클릭하세요</span>
             </div>
             <div class="user-grid" id="userGrid"></div>
         </div>
+        
         <div class="lobby-right">
             <div class="login-box">
-                <h2>로그인</h2>
-                <p id="selectedUserText">계정을 선택해주세요</p>
-                <input type="password" id="loginPassword" class="input-field" placeholder="비밀번호" onkeypress="if(event.key==='Enter') login()">
+                <h2 id="loginTitle">로그인</h2>
+                <p id="loginSubtitle">계정을 선택해주세요</p>
+                <input type="password" id="passwordInput" class="input-field" placeholder="비밀번호" />
                 <button class="btn btn-primary" id="loginBtn" onclick="login()" disabled>로그인</button>
+                <div id="loginError" class="error-msg"></div>
             </div>
+
             <div class="signup-section">
                 <h2>새 계정 만들기</h2>
-                <input type="text" id="signupId" class="input-field" placeholder="아이디">
-                <input type="password" id="signupPassword" class="input-field" placeholder="비밀번호">
-                <button class="btn btn-primary" style="background: #adb5bd;" onclick="signup()">회원가입</button>
+                <input type="text" id="newUsername" class="input-field" placeholder="아이디" />
+                <input type="password" id="newPassword" class="input-field" placeholder="비밀번호" />
+                <button class="btn btn-primary" onclick="signup()">회원가입</button>
+                <div id="signupError" class="error-msg"></div>
             </div>
+            
+            <button class="admin-tab" onclick="showAdminModal()">운영자</button>
         </div>
     </div>
 
-    <!-- 대시보드 화면 -->
+    <!-- 운영자 모달 -->
+    <div id="adminModal">
+        <div class="admin-modal-content">
+            <button class="close-btn" onclick="closeAdminModal()">×</button>
+            <h2>운영자 패널</h2>
+            <input type="password" id="adminPassword" class="input-field" placeholder="운영자 비밀번호" />
+            <button class="btn btn-primary" onclick="adminLogin()" style="margin-top: 12px;">접속</button>
+            <div id="adminContent" style="display: none; margin-top: 20px;">
+                <h3>패치노트 작성</h3>
+                <textarea id="patchNoteText" class="input-field" placeholder="패치노트 내용을 입력하세요..." style="width: 100%; height: 150px; margin-bottom: 12px;"></textarea>
+                <button class="btn btn-primary" onclick="savePatchNote()">저장</button>
+                <div id="adminMessage" class="error-msg"></div>
+            </div>
+            <div id="adminError" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- 대시보드 -->
     <div id="dashboardContainer">
-        <div class="top-bar">
-            <div class="user-info"><span id="userDisplayId"></span></div>
-            <div class="input-group">
-                <input type="text" id="title" placeholder="제목" onkeypress="if(event.key==='Enter') addItem()">
-                <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem()">
-                <label class="type-select"><input type="checkbox" id="isManga" onchange="toggleMangaInput()"> 만화</label>
-                <div id="mangaOnlyInput" style="display:none; gap:5px;"><input type="number" id="totalVol" placeholder="전체 권수"></div>
-                <button class="add-btn" onclick="addItem()">등록</button>
+        <div class="left-panel">
+            <div class="top-bar" style="position: relative; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; width: calc(100% + 40px); border-bottom: 1px solid var(--border-color);">
+                <span class="user-info" id="userDisplay"></span>
+                <div class="input-group">
+                    <input type="text" id="title" placeholder="제목" />
+                    <input type="text" id="imgUrl" placeholder="이미지 주소" />
+                    <label class="type-select">
+                        <input type="checkbox" id="isManga" /> 만화
+                    </label>
+                    <label class="type-select">
+                        <input type="checkbox" id="isEpisode" /> 장편
+                    </label>
+                    <input type="number" id="totalVol" placeholder="권/화" min="1" />
+                    <button class="add-btn" onclick="addItem()">등록</button>
+                </div>
+                <div class="search-group">
+                    <input type="search" id="searchInput" placeholder="검색..." onkeyup="filterDashboard()" />
+                </div>
+                <button class="delete-btn" onclick="deleteAccount()">계정 삭제</button>
+                <button class="btn btn-primary" style="width: 80px; padding: 6px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
             </div>
-            <div class="search-group"><input type="search" id="searchInput" placeholder="검색..." oninput="renderAll()"></div>
-            <button class="add-btn" style="background: var(--danger);" onclick="confirmDeleteAccount()">계정 삭제</button>
-            <button class="add-btn" style="background: #adb5bd;" onclick="logout()">로그아웃</button>
+            
+            <div class="dashboard-container">
+                <div class="dashboard" id="dashboard"></div>
+            </div>
         </div>
-        <div class="left-panel" ondrop="drop(event, 'none')">
-            <div class="dashboard-container"><div class="dashboard" id="mainDashboard"></div></div>
-        </div>
+
         <div class="right-panel">
-            <h3 style="text-align:center; color:var(--text-light); margin-bottom:15px;">애니 티어리스트</h3>
+            <div id="patchNotesDisplay"></div>
+            <div class="stats-bar" id="statsBar"></div>
             <div class="tier-board" id="tierBoard"></div>
-            <button class="add-btn" style="margin-top:15px; width:100%;" onclick="addTierRow()">+ 새로운 등급 추가</button>
-            <div class="stats-bar" id="statsBar">
-                <div class="stat-item">전체: <span id="statTotal">0</span></div>
-                <div class="stat-item">시청 중: <span id="statWatching">0</span></div>
-                <div class="stat-item">시청 완료: <span id="statCompleted">0</span></div>
-            </div>
+            <button class="tier-add-btn" onclick="addTierRow()">등급 추가</button>
         </div>
     </div>
 
-    <div id="customModal">
-        <div class="modal-content">
-            <p id="modalMsg" style="font-weight:bold; margin-bottom: 20px; color: var(--text-light);"></p>
-            <div style="display:flex; gap:10px; justify-content:center;">
-                <button class="add-btn" style="background:var(--danger);" id="modalConfirm">확인</button>
-                <button class="add-btn" style="background:#adb5bd;" onclick="closeModal()">취소</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGll2rvL1BBDNeQva4sm824q-pInxJUzk",
+            authDomain: "anime-3364d.firebaseapp.com",
+            databaseURL: "https://anime-3364d-default-rtdb.firebaseio.com",
+            projectId: "anime-3364d",
+            storageBucket: "anime-3364d.firebasestorage.app",
+            messagingSenderId: "236015911265",
+            appId: "1:236015911265:web:2c0293e2735f80dd4cc520"
+        };
 
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDGll2rvL1BBDNeQva4sm824q-pInxJUzk",
-      authDomain: "anime-3364d.firebaseapp.com",
-      databaseURL: "https://anime-3364d-default-rtdb.firebaseio.com",
-      projectId: "anime-3364d",
-      storageBucket: "anime-3364d.firebasestorage.app",
-      messagingSenderId: "236015911265",
-      appId: "1:236015911265:web:2c0293e2735f80dd4cc520"
-    };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
+        let currentUser = null;
+        let selectedId = null;
+        let animeData = [];
+        let tierSettings = [];
+        let patchNotes = { version: 1, content: '', lastUpdated: '' };
+        const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
-    let animeData = [], tierSettings = [], currentUser = null, selectedId = null;
-    const statusCfg = {'📅': {cls:'st-upcoming', next:'👀'}, '👀': {cls:'st-towatch', next:'✅'}, '✅': {cls:'st-watched', next:'📅'}};
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                loadDashboard();
+            } else {
+                currentUser = null;
+                showLobby();
+            }
+        });
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('lobbyContainer').style.display = 'none';
-            document.getElementById('dashboardContainer').style.display = 'flex';
-            const displayId = user.email.split('@')[0];
-            document.getElementById('userDisplayId').textContent = displayId;
-            loadUserData(user.uid);
-        } else {
-            currentUser = null;
+        function showLobby() {
             document.getElementById('lobbyContainer').style.display = 'flex';
             document.getElementById('dashboardContainer').style.display = 'none';
             loadUserList();
         }
-    });
 
-    function loadUserList() {
-        db.ref('registered_ids').on('value', (snapshot) => {
-            const ids = snapshot.val() || {};
-            const grid = document.getElementById('userGrid');
-            grid.innerHTML = '';
-            Object.values(ids).forEach(id => {
-                const card = document.createElement('div');
-                card.className = 'user-card' + (selectedId === id ? ' selected' : '');
-                card.onclick = () => { selectedId = id; document.getElementById('selectedUserText').textContent = id; document.getElementById('loginBtn').disabled = false; document.getElementById('loginPassword').focus(); loadUserList(); };
-                card.innerHTML = `<div class="avatar">👤</div><div class="username">${id}</div>`;
-                grid.appendChild(card);
+        function loadUserList() {
+            db.ref('registered_ids').on('value', snapshot => {
+                const ids = snapshot.val() || {};
+                const userGrid = document.getElementById('userGrid');
+                userGrid.innerHTML = '';
+                Object.values(ids).forEach(id => {
+                    const card = document.createElement('div');
+                    card.className = 'user-card' + (selectedId === id ? ' selected' : '');
+                    card.innerHTML = `<div class="avatar">👤</div><div class="username">${id}</div>`;
+                    card.onclick = () => selectUser(id);
+                    userGrid.appendChild(card);
+                });
             });
-        });
-    }
+        }
 
-    function signup() {
-        const id = document.getElementById('signupId').value, password = document.getElementById('signupPassword').value;
-        if (!id || !password) return alert('아이디와 비밀번호를 입력하세요.');
-        const email = id + "@archive.com";
-        auth.createUserWithEmailAndPassword(email, password).then(() => {
-            db.ref('registered_ids/' + id).set(id);
-            document.getElementById('signupId').value = ''; document.getElementById('signupPassword').value = '';
-        }).catch(err => alert(err.message));
-    }
+        function selectUser(id) {
+            selectedId = id;
+            document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('loginTitle').textContent = `${id}로 로그인`;
+            document.getElementById('loginSubtitle').textContent = '비밀번호를 입력하세요';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('passwordInput').focus();
+            loadUserList();
+        }
 
-    function login() {
-        if (!selectedId) return;
-        const email = selectedId + "@archive.com";
-        auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value)
-            .then(() => document.getElementById('loginPassword').value = '')
-            .catch(() => alert('비밀번호가 틀렸거나 오류가 발생했습니다.'));
-    }
+        function login() {
+            if (!selectedId) return;
+            const password = document.getElementById('passwordInput').value;
+            const email = `${selectedId}@archive.com`;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    document.getElementById('loginError').textContent = '';
+                    document.getElementById('passwordInput').value = '';
+                })
+                .catch(err => {
+                    document.getElementById('loginError').textContent = '비밀번호가 틀렸습니다';
+                });
+        }
 
-    function logout() { auth.signOut(); selectedId = null; document.getElementById('selectedUserText').textContent = '계정을 선택해주세요'; document.getElementById('loginBtn').disabled = true; }
+        function signup() {
+            const id = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            if (!id || !password) return alert('아이디와 비밀번호를 입력하세요');
+            const email = `${id}@archive.com`;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCred => {
+                    db.ref('registered_ids/' + id).set(id);
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('signupError').textContent = '';
+                })
+                .catch(err => {
+                    document.getElementById('signupError').textContent = err.message;
+                });
+        }
 
-    function confirmDeleteAccount() {
-        const modal = document.getElementById('customModal');
-        document.getElementById('modalMsg').innerText = "정말로 삭제를 진행할까요? 모든 데이터가 사라집니다.";
-        modal.style.display = 'flex';
-        document.getElementById('modalConfirm').onclick = deleteAccount;
-    }
+        function showAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminPassword').focus();
+        }
 
-    function deleteAccount() {
-        if (!currentUser) return;
-        const id = currentUser.email.split('@')[0], uid = currentUser.uid;
-        db.ref(`users/${uid}`).remove();
-        db.ref(`registered_ids/${id}`).remove();
-        currentUser.delete().then(() => { closeModal(); alert('계정이 삭제되었습니다.'); }).catch(() => { alert('보안을 위해 다시 로그인 후 삭제해주세요.'); logout(); });
-    }
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminError').textContent = '';
+            document.getElementById('patchNoteText').value = '';
+        }
 
-    function loadUserData(uid) {
-        db.ref(`users/${uid}`).on('value', (snapshot) => {
-            const data = snapshot.val();
-            animeData = data ? (data.animeData || []) : [];
-            tierSettings = data ? (data.tierSettings || [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}]) : [{"id":"t1","name":"S","color":"#ff7f7f"},{"id":"t2","name":"A","color":"#ffbf7f"}];
-            renderAll();
-        });
-    }
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'jimin0216!') {
+                document.getElementById('adminError').textContent = '';
+                document.getElementById('adminContent').style.display = 'block';
+                loadPatchNotes();
+            } else {
+                document.getElementById('adminError').textContent = '비밀번호가 틀렸습니다';
+            }
+        }
 
-    function saveData() { if (currentUser) db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings }); }
-    function toggleMangaInput() { document.getElementById('mangaOnlyInput').style.display = document.getElementById('isManga').checked ? 'flex' : 'none'; }
-    function renderAll() { displayItems(); renderTierBoard(); updateStats(); }
-    function addItem() {
-        const title = document.getElementById('title').value, imgUrl = document.getElementById('imgUrl').value || 'https://via.placeholder.com/200x300?text=No+Poster', isManga = document.getElementById('isManga').checked, totalVol = parseInt(document.getElementById('totalVol').value) || 0;
-        if (!title.trim()) return;
-        animeData.push({ id: Date.now(), title, imgUrl, tierId: 'none', isManga, currentVol: 0, totalVol, seasons: isManga ? [] : [{ name: '1기', status: '👀' }] });
-        saveData();
-        document.getElementById('title').value = ''; document.getElementById('imgUrl').value = ''; document.getElementById('isManga').checked = false; document.getElementById('totalVol').value = ''; toggleMangaInput();
-    }
-    function updateMangaProgress(id, current, total) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(current) || 0; item.totalVol = parseInt(total) || 0; saveData(); } }
-    function displayItems() {
-        const dashboard = document.getElementById('mainDashboard'), searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        dashboard.innerHTML = "";
-        animeData.filter(item => item.title.toLowerCase().includes(searchTerm)).forEach(item => {
-            const card = document.createElement('div');
-            card.className = `card ${item.isManga ? 'is-manga' : ''}`;
-            const tierInfo = tierSettings.find(t => t.id === item.tierId);
-            const badge = tierInfo ? `<div class="status-mark" style="background:${tierInfo.color};">${tierInfo.name}</div>` : '';
-            let contentHtml = item.isManga ? `<div class="manga-progress-container"><div class="progress-text"><span>진행도</span> <span>${item.totalVol > 0 ? Math.round((item.currentVol/item.totalVol)*100) : 0}%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${item.totalVol > 0 ? (item.currentVol/item.totalVol)*100 : 0}%"></div></div><div class="manga-edit-group"><input type="number" value="${item.currentVol}" oninput="updateMangaProgress(${item.id}, this.value, ${item.totalVol})"> / <input type="number" value="${item.totalVol}" oninput="updateMangaProgress(${item.id}, ${item.currentVol}, this.value)"> 권</div></div>` : `<div class="series-list">${(item.seasons || []).map((s, idx) => `<div class="season-item ${statusCfg[s.status].cls}"><button style="background:none; border:none; color:inherit; cursor:pointer;" onclick="deleteSeason(${item.id}, ${idx})">×</button><span style="flex:1; margin:0 8px;">${s.name}</span><button class="status-btn" onclick="cycleStatus(${item.id}, ${idx})">${s.status}</button></div>`).join('')}</div><div class="add-season-form"><input type="text" placeholder="기수명" id="si-${item.id}" onkeypress="if(event.key==='Enter') addNewSeason(${item.id})"></div>`;
-            card.innerHTML = `${badge}<img src="${item.imgUrl}" draggable="true" ondragstart="drag(event, ${item.id})" onclick="moveNextTier(${item.id})"><div class="card-body"><div class="card-title">${item.title}</div>${contentHtml}<button onclick="openDeleteModal('item', ${item.id})" style="border:none; background:none; color:var(--danger); font-size:10px; cursor:pointer; margin-top:auto; padding-top:15px; width:100%;">삭제</button></div>`;
-            dashboard.appendChild(card);
-        });
-    }
-    function updateStats() {
-        let total = animeData.length, watching = 0, completed = 0;
-        animeData.forEach(item => { if (item.isManga) { if (item.totalVol > 0 && item.currentVol >= item.totalVol) completed++; else if (item.currentVol > 0) watching++; } else { const seasons = item.seasons || []; if (seasons.length > 0) { if (seasons.some(s => s.status === '👀')) watching++; else completed++; } } });
-        document.getElementById('statTotal').innerText = total; document.getElementById('statWatching').innerText = watching; document.getElementById('statCompleted').innerText = completed;
-    }
-    function renderTierBoard() {
-        const board = document.getElementById('tierBoard'); board.innerHTML = "";
-        tierSettings.forEach(tier => {
-            const row = document.createElement('div'); row.className = 'tier-row';
-            const tierItems = animeData.filter(a => a.tierId === tier.id);
-            row.innerHTML = `<div class="tier-header" style="background-color:${tier.color}"><input type="text" class="tier-name-input" value="${tier.name || '등급'}" onchange="updateTier('${tier.id}', 'name', this.value)"><input type="color" class="tier-color-picker" value="${tier.color}" onchange="updateTier('${tier.id}', 'color', this.value)"><button onclick="openDeleteModal('tier', '${tier.id}')" style="font-size:10px; border:none; background:none; cursor:pointer; margin-top:5px; color:white;">✖</button></div><div class="tier-list" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, '${tier.id}')">${tierItems.map(a => `<div class="tier-item ${a.isManga ? 'is-manga' : ''}" draggable="true" ondragstart="drag(event, ${a.id})" ondrop="dropOnItem(event, ${a.id})"><img src="${a.imgUrl}"></div>`).join('')}</div>`;
-            board.appendChild(row);
-        });
-    }
-    function drag(ev, id) { ev.dataTransfer.setData("itemId", id.toString()); }
-    function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.style.background = "rgba(92, 103, 242, 0.05)"; }
-    function dragLeave(ev) { ev.currentTarget.style.background = "#f8f9fa"; }
-    function drop(ev, tierId) { ev.preventDefault(); ev.currentTarget.style.background = "#f8f9fa"; const id = parseInt(ev.dataTransfer.getData("itemId")), idx = animeData.findIndex(a => a.id === id); if (idx > -1) { animeData[idx].tierId = tierId; const item = animeData.splice(idx, 1)[0]; animeData.push(item); saveData(); } }
-    function dropOnItem(ev, targetId) { ev.preventDefault(); ev.stopPropagation(); const draggedId = parseInt(ev.dataTransfer.getData("itemId")), dIdx = animeData.findIndex(a => a.id === draggedId), tIdx = animeData.findIndex(a => a.id === targetId); if (dIdx > -1 && tIdx > -1) { animeData[dIdx].tierId = animeData[tIdx].tierId; const item = animeData.splice(dIdx, 1)[0], ntIdx = animeData.findIndex(a => a.id === targetId); animeData.splice(ntIdx, 0, item); saveData(); } }
-    function deleteSeason(id, idx) { animeData.find(a => a.id === id).seasons.splice(idx, 1); saveData(); }
-    function addNewSeason(id) { const input = document.getElementById(`si-${id}`); if(!input.value) return; animeData.find(a => a.id === id).seasons.push({name:input.value, status:'📅'}); saveData(); setTimeout(() => { document.getElementById(`si-${id}`).focus(); document.getElementById(`si-${id}`).value = ''; }, 50); }
-    function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); }
-    function updateTier(id, f, v) { tierSettings.find(t => t.id === id)[f] = v; saveData(); renderTierBoard(); }
-    function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: "등급", color: "#adb5bd" }); saveData(); }
-    function moveNextTier(id) { const item = animeData.find(x => x.id === id), ids = ['none', ...tierSettings.map(t => t.id)]; item.tierId = ids[(ids.indexOf(item.tierId) + 1) % ids.length]; saveData(); }
-    function openDeleteModal(type, id) { const modal = document.getElementById('customModal'); document.getElementById('modalMsg').innerText = "삭제하시겠습니까?"; modal.style.display = 'flex'; document.getElementById('modalConfirm').onclick = () => { if(type === 'item') animeData = animeData.filter(a => a.id !== id); else { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); } saveData(); closeModal(); }; }
-    function closeModal() { document.getElementById('customModal').style.display = 'none'; }
-</script>
+        function loadPatchNotes() {
+            db.ref('system/patchNotes').once('value', snapshot => {
+                patchNotes = snapshot.val() || { version: 1, content: '', lastUpdated: '' };
+                document.getElementById('patchNoteText').value = patchNotes.content;
+            });
+        }
+
+        function savePatchNote() {
+            const content = document.getElementById('patchNoteText').value.trim();
+            if (!content) return alert('패치노트 내용을 입력하세요');
+            
+            patchNotes.version += 1;
+            patchNotes.content = content;
+            patchNotes.lastUpdated = new Date().toLocaleString('ko-KR');
+            
+            db.ref('system/patchNotes').set(patchNotes)
+                .then(() => {
+                    document.getElementById('adminMessage').textContent = '패치노트가 저장되었습니다!';
+                    document.getElementById('adminMessage').style.color = '#51cf66';
+                    setTimeout(() => {
+                        document.getElementById('adminMessage').textContent = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    document.getElementById('adminMessage').textContent = '저장 실패: ' + err.message;
+                    document.getElementById('adminMessage').style.color = '#fa5252';
+                });
+        }
+
+        function loadDashboard() {
+            document.getElementById('lobbyContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'flex';
+            document.getElementById('userDisplay').textContent = `${currentUser.email.split('@')[0]} 님`;
+            
+            db.ref(`users/${currentUser.uid}`).on('value', snapshot => {
+                const data = snapshot.val() || {};
+                animeData = data.animeData || [];
+                tierSettings = data.tierSettings || [
+                    { id: 't1', name: 'S', color: '#ff6b6b' },
+                    { id: 't2', name: 'A', color: '#ffd43b' },
+                    { id: 't3', name: 'B', color: '#51cf66' },
+                    { id: 't4', name: 'C', color: '#74c0fc' }
+                ];
+                renderDashboard();
+                renderTierBoard();
+                updateStats();
+            });
+
+            db.ref('system/patchNotes').on('value', snapshot => {
+                patchNotes = snapshot.val() || { version: 1, content: '', lastUpdated: '' };
+                renderPatchNotes();
+            });
+        }
+
+        function renderPatchNotes() {
+            const display = document.getElementById('patchNotesDisplay');
+            if (!patchNotes.content) {
+                display.innerHTML = '';
+                return;
+            }
+            display.innerHTML = `
+                <div class="patch-notes-section">
+                    <div class="patch-notes-header">
+                        <h3>📢 패치노트</h3>
+                        <span class="patch-version">v${patchNotes.version}</span>
+                    </div>
+                    <div class="patch-notes-content">${patchNotes.content}</div>
+                    <div style="font-size: 8px; color: var(--text-secondary); margin-top: 6px;">업데이트: ${patchNotes.lastUpdated}</div>
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            let watchedCount = 0;
+            let watchingCount = 0;
+            let unwatchedCount = 0;
+
+            animeData.forEach(item => {
+                if (item.isManga || item.isEpisode) return;
+                
+                const hasWatched = item.seasons && item.seasons.some(s => s.status === '✅');
+                const hasWatching = item.seasons && item.seasons.some(s => s.status === '👀');
+
+                if (hasWatched) {
+                    watchedCount++;
+                } else if (hasWatching) {
+                    watchingCount++;
+                } else {
+                    unwatchedCount++;
+                }
+            });
+
+            const statsBar = document.getElementById('statsBar');
+            statsBar.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">시청 완료</div>
+                    <div class="stat-value">${watchedCount}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">시청 중</div>
+                    <div class="stat-value">${watchingCount}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">시청 전</div>
+                    <div class="stat-value">${unwatchedCount}</div>
+                </div>
+            `;
+        }
+
+        function addItem() {
+            const title = document.getElementById('title').value.trim();
+            const imgUrl = document.getElementById('imgUrl').value.trim() || 'https://via.placeholder.com/200x300?text=No+Poster';
+            const isManga = document.getElementById('isManga').checked;
+            const isEpisode = document.getElementById('isEpisode').checked;
+            const totalVol = parseInt(document.getElementById('totalVol').value) || 0;
+
+            if (!title) return alert('제목을 입력하세요');
+            if (isManga && isEpisode) return alert('만화와 장편 중 하나만 선택하세요');
+
+            const item = {
+                id: Date.now(),
+                title,
+                imgUrl,
+                isManga,
+                isEpisode,
+                currentVol: 0,
+                totalVol,
+                seasons: (!isManga && !isEpisode) ? [{ name: '1기', status: '📅' }] : [],
+                tierId: 'none'
+            };
+
+            animeData.push(item);
+            saveData();
+            document.getElementById('title').value = '';
+            document.getElementById('imgUrl').value = '';
+            document.getElementById('isManga').checked = false;
+            document.getElementById('isEpisode').checked = false;
+            document.getElementById('totalVol').value = '';
+        }
+
+        function renderDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            animeData.filter(item => item.title.toLowerCase().includes(query)).forEach(item => {
+                const card = document.createElement('div');
+                card.className = `card ${item.isManga ? 'is-manga' : ''} ${item.isEpisode ? 'is-episode' : ''}`;
+                
+                let content = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" />
+                    <div class="card-body">
+                        <div class="card-title">${item.title}</div>`;
+                
+                if (item.isManga || item.isEpisode) {
+                    const percent = item.totalVol > 0 ? Math.round((item.currentVol / item.totalVol) * 100) : 0;
+                    const unit = item.isManga ? '권' : '화';
+                    content += `<div class="manga-progress-container">
+                        <div class="progress-text"><span>${item.currentVol}/${item.totalVol}${unit}</span><span>${percent}%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill ${item.isEpisode ? 'episode-progress-fill' : ''}" style="width: ${percent}%"></div></div>
+                        <div class="manga-edit-group">
+                            <input type="number" value="${item.currentVol}" onchange="updateVol(${item.id}, this.value)" min="0">
+                            <span>/</span>
+                            <input type="number" value="${item.totalVol}" onchange="updateTotal(${item.id}, this.value)" min="0">
+                        </div>
+                    </div>`;
+                } else {
+                    content += `<div class="series-list">`;
+                    (item.seasons || []).forEach((s, idx) => {
+                        content += `<div class="season-item st-${s.status === '📅' ? 'upcoming' : s.status === '👀' ? 'towatch' : 'watched'}">
+                            <span>${s.name}</span>
+                            <button class="status-btn" onclick="cycleStatus(${item.id}, ${idx})">${s.status}</button>
+                            <button class="status-btn" onclick="deleteSeason(${item.id}, ${idx})">×</button>
+                        </div>`;
+                    });
+                    content += `</div>
+                        <div class="add-season-form">
+                            <input type="text" placeholder="기수 추가" onkeypress="if(event.key==='Enter') addSeason(${item.id}, this.value); this.value='';" />
+                        </div>`;
+                }
+                
+                content += `<button class="delete-btn" style="margin-top: 6px; width: 100%;" onclick="deleteItem(${item.id})">삭제</button></div>`;
+                card.innerHTML = content;
+                dashboard.appendChild(card);
+            });
+        }
+
+        function renderTierBoard() {
+            const tierBoard = document.getElementById('tierBoard');
+            tierBoard.innerHTML = '';
+            tierSettings.forEach(tier => {
+                const items = animeData.filter(a => a.tierId === tier.id);
+                const row = document.createElement('div');
+                row.className = 'tier-row';
+                row.innerHTML = `
+                    <div class="tier-header" style="background-color: ${tier.color}20;">
+                        <input type="text" class="tier-name" value="${tier.name}" onchange="updateTierName('${tier.id}', this.value)" style="width: 40px; border: none; background: transparent; text-align: center; font-weight: bold;">
+                        <input type="color" class="tier-color-input" value="${tier.color}" onchange="updateTierColor('${tier.id}', this.value)" />
+                        <button onclick="deleteTier('${tier.id}')" style="border: none; background: transparent; cursor: pointer; font-size: 10px;">×</button>
+                    </div>
+                    <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondrop="dragDrop(event, '${tier.id}')">
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id})"><img src="${item.imgUrl}" alt="${item.title}" /></div>`).join('')}
+                    </div>
+                `;
+                tierBoard.appendChild(row);
+            });
+        }
+
+        function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); } }
+        function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); } }
+        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); } }
+        function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); } }
+        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); } }
+        function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); } }
+        function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); } }
+        function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); }
+        function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); }
+        function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); }
+        function dragStart(e, id) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', id); }
+        function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+        function dragDrop(e, tierId) { e.preventDefault(); const itemId = parseInt(e.dataTransfer.getData('itemId')); const item = animeData.find(a => a.id === itemId); if (item) { item.tierId = tierId; saveData(); } }
+        function filterDashboard() { renderDashboard(); }
+        function saveData() { if (currentUser) db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings }); }
+        function logout() { auth.signOut().then(() => { selectedId = null; showLobby(); }); }
+        function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { const id = currentUser.email.split('@')[0]; db.ref(`users/${currentUser.uid}`).remove(); db.ref('registered_ids/' + id).remove(); auth.currentUser.delete().then(() => showLobby()); } }
+    </script>
 </body>
 </html>
