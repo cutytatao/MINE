@@ -46,8 +46,8 @@
         .signup-section { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-color); }
         .signup-section h2 { font-size: 18px; margin: 0 0 16px 0; }
         
-        .admin-tab { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
-        .admin-tab:hover { background: #4a52d5; transform: translateX(-50%) scale(1.05); }
+        .admin-tab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; z-index: 50; box-shadow: 0 4px 12px rgba(92, 103, 242, 0.3); }
+        .admin-tab:hover { background: #4a52d5; transform: translateX(-50%) scale(1.08); box-shadow: 0 6px 16px rgba(92, 103, 242, 0.4); }
         
         #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .admin-modal-content { background: white; border-radius: 16px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
@@ -92,11 +92,12 @@
         .manga-edit-group { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 9px; }
         .manga-edit-group input { width: 30px; padding: 2px; font-size: 9px; text-align: center; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); border-radius: 3px; }
 
-        .series-list { display: flex; flex-direction: column; gap: 1px; }
-        .season-item { display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 700; color: white; box-shadow: 0 0.5px 1px rgba(0,0,0,0.1); line-height: 1; }
-        .st-upcoming { background-color: var(--color-upcoming); }
-        .st-towatch { background-color: var(--color-towatch); color: #333; }
-        .st-watched { background-color: var(--color-watched); }
+        .series-list { display: flex; flex-direction: column; gap: 4px; }
+        .season-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); line-height: 1; cursor: pointer; transition: all 0.2s; }
+        .season-item:hover { transform: translateX(2px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .st-upcoming { background-color: #ff5252; }
+        .st-towatch { background-color: #ffc107; color: #333; }
+        .st-watched { background-color: #4caf50; }
         .status-btn { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 2px; cursor: pointer; padding: 0 2px; font-size: 7px; color: #333; font-weight: bold; line-height: 1; height: 14px; display: flex; align-items: center; }
         
         .add-season-form { display: flex; gap: 2px; margin-top: 2px; padding-top: 2px; border-top: 1px dashed var(--border-color); }
@@ -113,9 +114,12 @@
         
         .tier-board { display: flex; flex-direction: column; gap: 8px; }
         .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
-        .tier-header { min-width: 60px; background: #f1f3f5; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 4px; }
-        .tier-name { font-weight: 700; font-size: 14px; color: var(--text-light); }
+        .tier-header { min-width: 70px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 6px; }
+        .tier-name { font-weight: 700; font-size: 14px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
         .tier-color-input { width: 36px; height: 24px; border: none; border-radius: 4px; cursor: pointer; }
+        .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
+        .color-option { width: 24px; height: 24px; border-radius: 3px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .color-option:hover { transform: scale(1.1); border-color: #333; }
         .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow-x: auto; align-items: center; }
         .tier-item { width: 70px; height: 98px; flex-shrink: 0; border-radius: 4px; overflow: hidden; cursor: grab; }
         .tier-item img { width: 100%; height: 100%; object-fit: cover; }
@@ -503,10 +507,9 @@
                 } else {
                     content += `<div class="series-list">`;
                     (item.seasons || []).forEach((s, idx) => {
-                        content += `<div class="season-item st-${s.status === '📅' ? 'upcoming' : s.status === '👀' ? 'towatch' : 'watched'}">
+                        content += `<div class="season-item st-${s.status === '📅' ? 'upcoming' : s.status === '👀' ? 'towatch' : 'watched'}" onclick="cycleStatus(${item.id}, ${idx})" style="justify-content: space-between;">
                             <span>${s.name}</span>
-                            <button class="status-btn" onclick="cycleStatus(${item.id}, ${idx})">${s.status}</button>
-                            <button class="status-btn" onclick="deleteSeason(${item.id}, ${idx})">×</button>
+                            <button class="status-btn" onclick="event.stopPropagation(); deleteSeason(${item.id}, ${idx})" style="margin-left: 8px;">×</button>
                         </div>`;
                     });
                     content += `</div>
@@ -529,10 +532,11 @@
                 const row = document.createElement('div');
                 row.className = 'tier-row';
                 row.innerHTML = `
-                    <div class="tier-header" style="background-color: ${tier.color}20;">
-                        <input type="text" class="tier-name" value="${tier.name}" onchange="updateTierName('${tier.id}', this.value)" style="width: 40px; border: none; background: transparent; text-align: center; font-weight: bold;">
-                        <input type="color" class="tier-color-input" value="${tier.color}" onchange="updateTierColor('${tier.id}', this.value)" />
-                        <button onclick="deleteTier('${tier.id}')" style="border: none; background: transparent; cursor: pointer; font-size: 10px;">×</button>
+                    <div class="tier-header" style="background-color: ${tier.color};">
+                        <input type="text" class="tier-name" value="${tier.name}" onchange="updateTierName('${tier.id}', this.value)" style="width: 40px; border: none; background: transparent; text-align: center; font-weight: bold; color: white;">
+                        <div class="color-palette" id="palette-${tier.id}" style="display: none;"></div>
+                        <button onclick="toggleColorPalette('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold;">🎨</button>
+                        <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
                     </div>
                     <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondrop="dragDrop(event, '${tier.id}')">
                         ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id})"><img src="${item.imgUrl}" alt="${item.title}" /></div>`).join('')}
@@ -546,9 +550,19 @@
         function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); } }
         function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); } }
         function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); } }
-        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); } }
-        function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); } }
-        function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); } }
+        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); renderDashboard(); } }
+        function toggleColorPalette(tierId) {
+            const palette = document.getElementById(`palette-${tierId}`);
+            if (palette.style.display === 'none') {
+                palette.style.display = 'grid';
+                const colors = ['#ff6b6b', '#ff8787', '#ff5252', '#fa5252', '#ffd43b', '#ffc107', '#ffb300', '#51cf66', '#4caf50', '#45b649', '#74c0fc', '#42a5f5', '#2196f3', '#1976d2', '#adb5bd', '#757575'];
+                palette.innerHTML = colors.map(color => `<div class="color-option" style="background-color: ${color};" onclick="updateTierColor('${tierId}', '${color}'); toggleColorPalette('${tierId}')"></div>`).join('');
+            } else {
+                palette.style.display = 'none';
+            }
+        }
+        function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); renderTierBoard(); } }
+        function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); renderTierBoard(); } }
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); }
