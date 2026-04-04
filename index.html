@@ -106,11 +106,14 @@
         .delete-btn { background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: 600; }
         .delete-btn:hover { background: #e03131; }
         
-        .patch-notes-section { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .patch-notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .patch-notes-header h3 { margin: 0; font-size: 13px; font-weight: 700; }
-        .patch-version { font-size: 10px; color: var(--text-secondary); }
-        .patch-notes-content { font-size: 10px; line-height: 1.4; color: var(--text-light); white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; }
+        .patch-notes-section { background: #f1f3f5; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; margin-bottom: 10px; }
+        .patch-notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 6px; }
+        .patch-notes-header h3 { margin: 0; font-size: 11px; font-weight: 700; }
+        .patch-version { font-size: 9px; color: var(--text-secondary); white-space: nowrap; }
+        .patch-nav-btn { background: var(--primary); color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .patch-nav-btn:hover { background: #4a52d5; }
+        .patch-nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .patch-notes-content { font-size: 9px; line-height: 1.3; color: var(--text-light); white-space: pre-wrap; word-break: break-word; max-height: 100px; overflow-y: auto; }
         
         .tier-board { display: flex; flex-direction: column; gap: 8px; }
         .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
@@ -240,7 +243,8 @@
         let selectedId = null;
         let animeData = [];
         let tierSettings = [];
-        let patchNotes = { version: 1, content: '', lastUpdated: '' };
+        let patchNotes = [];
+        let currentPatchIndex = 0;
         const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
         auth.onAuthStateChanged(user => {
@@ -341,8 +345,12 @@
 
         function loadPatchNotes() {
             db.ref('system/patchNotes').once('value', snapshot => {
-                patchNotes = snapshot.val() || { version: 1, content: '', lastUpdated: '' };
-                document.getElementById('patchNoteText').value = patchNotes.content;
+                patchNotes = snapshot.val() || [];
+                if (!Array.isArray(patchNotes)) patchNotes = [];
+                currentPatchIndex = patchNotes.length - 1;
+                if (patchNotes.length > 0) {
+                    document.getElementById('patchNoteText').value = patchNotes[currentPatchIndex].content;
+                }
             });
         }
 
@@ -350,14 +358,20 @@
             const content = document.getElementById('patchNoteText').value.trim();
             if (!content) return alert('패치노트 내용을 입력하세요');
             
-            patchNotes.version += 1;
-            patchNotes.content = content;
-            patchNotes.lastUpdated = new Date().toLocaleString('ko-KR');
+            const newPatch = {
+                version: patchNotes.length + 1,
+                content: content,
+                lastUpdated: new Date().toLocaleString('ko-KR')
+            };
+            
+            patchNotes.push(newPatch);
+            currentPatchIndex = patchNotes.length - 1;
             
             db.ref('system/patchNotes').set(patchNotes)
                 .then(() => {
                     document.getElementById('adminMessage').textContent = '패치노트가 저장되었습니다!';
                     document.getElementById('adminMessage').style.color = '#51cf66';
+                    document.getElementById('patchNoteText').value = '';
                     setTimeout(() => {
                         document.getElementById('adminMessage').textContent = '';
                     }, 2000);
@@ -366,6 +380,20 @@
                     document.getElementById('adminMessage').textContent = '저장 실패: ' + err.message;
                     document.getElementById('adminMessage').style.color = '#fa5252';
                 });
+        }
+
+        function prevPatchNote() {
+            if (currentPatchIndex > 0) {
+                currentPatchIndex--;
+                renderPatchNotes();
+            }
+        }
+
+        function nextPatchNote() {
+            if (currentPatchIndex < patchNotes.length - 1) {
+                currentPatchIndex++;
+                renderPatchNotes();
+            }
         }
 
         function loadDashboard() {
@@ -395,18 +423,20 @@
 
         function renderPatchNotes() {
             const display = document.getElementById('patchNotesDisplay');
-            if (!patchNotes.content) {
+            if (!patchNotes.length || currentPatchIndex < 0) {
                 display.innerHTML = '';
                 return;
             }
+            const patch = patchNotes[currentPatchIndex];
             display.innerHTML = `
                 <div class="patch-notes-section">
                     <div class="patch-notes-header">
-                        <h3>📢 패치노트</h3>
-                        <span class="patch-version">v${patchNotes.version}</span>
+                        <button class="patch-nav-btn" onclick="prevPatchNote()" ${currentPatchIndex === 0 ? 'disabled' : ''}>◀</button>
+                        <h3>📢 v${patch.version}</h3>
+                        <button class="patch-nav-btn" onclick="nextPatchNote()" ${currentPatchIndex === patchNotes.length - 1 ? 'disabled' : ''}>▶</button>
                     </div>
-                    <div class="patch-notes-content">${patchNotes.content}</div>
-                    <div style="font-size: 8px; color: var(--text-secondary); margin-top: 6px;">업데이트: ${patchNotes.lastUpdated}</div>
+                    <div class="patch-notes-content">${patch.content}</div>
+                    <div style="font-size: 8px; color: var(--text-secondary); margin-top: 4px;">${patch.lastUpdated}</div>
                 </div>
             `;
         }
