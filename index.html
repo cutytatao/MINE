@@ -134,7 +134,7 @@
         .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
         .color-option { width: 24px; height: 24px; border-radius: 3px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .color-option:hover { transform: scale(1.1); border-color: #333; }
-        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow-x: auto; align-items: center; }
+        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow-x: auto; align-items: center; transition: background-color 0.2s; }
         .tier-item { width: 70px; height: 98px; flex-shrink: 0; border-radius: 4px; overflow: hidden; cursor: grab; }
         .tier-item img { width: 100%; height: 100%; object-fit: cover; }
         .tier-item:active { cursor: grabbing; }
@@ -664,8 +664,8 @@
                         <button onclick="toggleColorPalette('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold;">🎨</button>
                         <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
                     </div>
-                    <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id})" ondragend="dragEnd(event)"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
+                    <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dragDrop(event, '${tier.id}')">
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
                     </div>
                 `;
                 tierBoard.appendChild(row);
@@ -682,10 +682,79 @@
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
-        function dragStart(e, id) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', id); e.target.style.opacity = '0.5'; }
-        function dragEnd(e) { e.target.style.opacity = '1'; }
-        function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-        function dragDrop(e, tierId) { e.preventDefault(); const itemId = parseInt(e.dataTransfer.getData('itemId')); const item = animeData.find(a => a.id === itemId); if (item) { item.tierId = tierId; saveData(); renderDashboard(); renderTierBoard(); } }
+        
+        function dragStart(e, id, tierId) { 
+            e.dataTransfer.effectAllowed = 'move'; 
+            e.dataTransfer.setData('itemId', id); 
+            e.dataTransfer.setData('fromTierId', tierId);
+            e.target.style.opacity = '0.5'; 
+        }
+        
+        function dragEnd(e) { 
+            e.target.style.opacity = '1';
+            document.querySelectorAll('.tier-items').forEach(el => el.style.backgroundColor = 'transparent');
+        }
+        
+        function dragOver(e) { 
+            e.preventDefault(); 
+            e.dataTransfer.dropEffect = 'move';
+            if (e.currentTarget.classList.contains('tier-items')) {
+                e.currentTarget.style.backgroundColor = 'rgba(92, 103, 242, 0.15)';
+            }
+        }
+        
+        function dragLeave(e) {
+            if (e.currentTarget.classList.contains('tier-items')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+            }
+        }
+        
+        function dragDrop(e, tierId) { 
+            e.preventDefault();
+            if (e.currentTarget.classList.contains('tier-items')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+            }
+            
+            const itemId = parseInt(e.dataTransfer.getData('itemId')); 
+            const fromTierId = e.dataTransfer.getData('fromTierId');
+            const item = animeData.find(a => a.id === itemId); 
+            
+            if (!item) return;
+            
+            if (fromTierId === tierId) {
+                // 같은 티어 내에서의 순서 변경
+                const tierItems = animeData.filter(a => a.tierId === tierId);
+                const dropZone = e.currentTarget;
+                const tierItemElements = Array.from(dropZone.querySelectorAll('.tier-item'));
+                
+                let dropIndex = tierItemElements.length;
+                for (let i = 0; i < tierItemElements.length; i++) {
+                    const rect = tierItemElements[i].getBoundingClientRect();
+                    if (e.clientX < rect.left + rect.width / 2) {
+                        dropIndex = i;
+                        break;
+                    }
+                }
+                
+                const currentIndex = tierItems.findIndex(a => a.id === itemId);
+                if (dropIndex !== currentIndex && dropIndex !== currentIndex + 1) {
+                    const reorderedItems = tierItems.filter(a => a.id !== itemId);
+                    const insertIndex = dropIndex > currentIndex ? dropIndex - 1 : dropIndex;
+                    reorderedItems.splice(insertIndex, 0, item);
+                    
+                    const otherItems = animeData.filter(a => a.tierId !== tierId);
+                    animeData = [...otherItems, ...reorderedItems];
+                }
+            } else {
+                // 다른 티어로 이동
+                item.tierId = tierId;
+            }
+            
+            saveData();
+            renderDashboard();
+            renderTierBoard();
+        }
+        
         function filterDashboard() { renderDashboard(); }
         function toggleColorPalette(tierId) {
             const palette = document.getElementById(`palette-${tierId}`);
