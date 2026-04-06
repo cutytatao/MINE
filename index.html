@@ -602,6 +602,9 @@
             animeData.filter(item => item.title.toLowerCase().includes(query)).forEach(item => {
                 const card = document.createElement('div');
                 card.className = `card ${item.isManga ? 'is-manga' : ''} ${item.isEpisode ? 'is-episode' : ''} ${item.isShort ? 'is-short' : ''}`;
+                card.draggable = true;
+                card.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', item.id); e.target.style.opacity = '0.5'; };
+                card.ondragend = (e) => { e.target.style.opacity = '1'; document.querySelectorAll('.tier-items').forEach(el => el.style.backgroundColor = 'transparent'); };
                 
                 const tierInfo = tierSettings.find(t => t.id === item.tierId);
                 const tierBadge = tierInfo ? `<div class="tier-badge" style="background-color: ${tierInfo.color};">${tierInfo.name}</div>` : '';
@@ -721,8 +724,9 @@
             
             if (!item) return;
             
-            if (fromTierId === tierId) {
-                // 같은 티어 내에서의 순서 변경
+            if (fromTierId === 'dashboard' || fromTierId === 'none' || !fromTierId) {
+                item.tierId = tierId;
+            } else if (fromTierId === tierId) {
                 const tierItems = animeData.filter(a => a.tierId === tierId);
                 const dropZone = e.currentTarget;
                 const tierItemElements = Array.from(dropZone.querySelectorAll('.tier-item'));
@@ -746,7 +750,6 @@
                     animeData = [...otherItems, ...reorderedItems];
                 }
             } else {
-                // 다른 티어로 이동
                 item.tierId = tierId;
             }
             
