@@ -81,7 +81,8 @@
         .card.is-manga { border: 3px solid var(--manga-color) !important; }
         .card.is-episode { border: 3px solid var(--episode-color) !important; }
         .card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-        .card-body { padding: 9px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-body { padding: 9px; flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .tier-badge { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; }
         .card-title { font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 6px; color: var(--text-light); line-height: 1.2; }
         
         .manga-progress-container { margin-top: 3px; }
@@ -193,15 +194,15 @@
             <div class="top-bar" style="position: relative; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; width: calc(100% + 40px); border-bottom: 1px solid var(--border-color);">
                 <span class="user-info" id="userDisplay"></span>
                 <div class="input-group">
-                    <input type="text" id="title" placeholder="제목" />
-                    <input type="text" id="imgUrl" placeholder="이미지 주소" />
+                    <input type="text" id="title" placeholder="제목" onkeypress="if(event.key==='Enter') document.getElementById('imgUrl').focus();" />
+                    <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem();" />
                     <label class="type-select">
                         <input type="checkbox" id="isManga" /> 만화
                     </label>
                     <label class="type-select">
                         <input type="checkbox" id="isEpisode" /> 장편
                     </label>
-                    <input type="number" id="totalVol" placeholder="권/화" min="1" />
+                    <input type="number" id="totalVol" placeholder="권/화" min="1" onkeypress="if(event.key==='Enter') addItem();" />
                     <button class="add-btn" onclick="addItem()">등록</button>
                 </div>
                 <div class="search-group">
@@ -416,7 +417,9 @@
             });
 
             db.ref('system/patchNotes').on('value', snapshot => {
-                patchNotes = snapshot.val() || { version: 1, content: '', lastUpdated: '' };
+                patchNotes = snapshot.val() || [];
+                if (!Array.isArray(patchNotes)) patchNotes = [];
+                currentPatchIndex = patchNotes.length - 1;
                 renderPatchNotes();
             });
         }
@@ -449,15 +452,20 @@
             animeData.forEach(item => {
                 if (item.isManga || item.isEpisode) return;
                 
-                const hasWatched = item.seasons && item.seasons.some(s => s.status === '✅');
-                const hasWatching = item.seasons && item.seasons.some(s => s.status === '👀');
+                const seasons = item.seasons || [];
+                if (seasons.length === 0) return;
+                
+                const allWatched = seasons.every(s => s.status === '✅');
+                const hasWatched = seasons.some(s => s.status === '✅');
+                const hasWatching = seasons.some(s => s.status === '👀');
+                const allUnwatched = seasons.every(s => s.status === '📅');
 
-                if (hasWatched) {
+                if (allWatched) {
                     watchedCount++;
-                } else if (hasWatching) {
-                    watchingCount++;
-                } else {
+                } else if (allUnwatched) {
                     unwatchedCount++;
+                } else if (hasWatched || hasWatching) {
+                    watchingCount++;
                 }
             });
 
@@ -518,8 +526,12 @@
                 const card = document.createElement('div');
                 card.className = `card ${item.isManga ? 'is-manga' : ''} ${item.isEpisode ? 'is-episode' : ''}`;
                 
+                const tierInfo = tierSettings.find(t => t.id === item.tierId);
+                const tierBadge = tierInfo ? `<div class="tier-badge" style="background-color: ${tierInfo.color};">${tierInfo.name}</div>` : '';
+                
                 let content = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" />
                     <div class="card-body">
+                        ${tierBadge}
                         <div class="card-title">${item.title}</div>`;
                 
                 if (item.isManga || item.isEpisode) {
@@ -544,7 +556,7 @@
                     });
                     content += `</div>
                         <div class="add-season-form">
-                            <input type="text" placeholder="기수 추가" onkeypress="if(event.key==='Enter') addSeason(${item.id}, this.value); this.value='';" />
+                            <input type="text" placeholder="기수 추가" onkeypress="if(event.key==='Enter') { addSeason(${item.id}, this.value); this.value=''; this.focus(); }" />
                         </div>`;
                 }
                 
@@ -569,7 +581,7 @@
                         <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
                     </div>
                     <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id})"><img src="${item.imgUrl}" alt="${item.title}" /></div>`).join('')}
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id})"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
                     </div>
                 `;
                 tierBoard.appendChild(row);
@@ -578,9 +590,18 @@
 
         function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); } }
         function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); } }
-        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); } }
-        function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); } }
-        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); renderDashboard(); } }
+        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); } }
+        function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); renderDashboard(); } }
+        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); renderDashboard(); updateStats(); } }
+        function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); renderTierBoard(); } }
+        function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); renderTierBoard(); } }
+        function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
+        function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
+        function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
+        function dragStart(e, id) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', id); }
+        function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+        function dragDrop(e, tierId) { e.preventDefault(); const itemId = parseInt(e.dataTransfer.getData('itemId')); const item = animeData.find(a => a.id === itemId); if (item) { item.tierId = tierId; saveData(); renderDashboard(); renderTierBoard(); } }
+        function filterDashboard() { renderDashboard(); }
         function toggleColorPalette(tierId) {
             const palette = document.getElementById(`palette-${tierId}`);
             if (palette.style.display === 'none') {
@@ -591,15 +612,6 @@
                 palette.style.display = 'none';
             }
         }
-        function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); renderTierBoard(); } }
-        function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); renderTierBoard(); } }
-        function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); }
-        function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); }
-        function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); }
-        function dragStart(e, id) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', id); }
-        function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-        function dragDrop(e, tierId) { e.preventDefault(); const itemId = parseInt(e.dataTransfer.getData('itemId')); const item = animeData.find(a => a.id === itemId); if (item) { item.tierId = tierId; saveData(); } }
-        function filterDashboard() { renderDashboard(); }
         function saveData() { if (currentUser) db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings }); }
         function logout() { auth.signOut().then(() => { selectedId = null; showLobby(); }); }
         function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { const id = currentUser.email.split('@')[0]; db.ref(`users/${currentUser.uid}`).remove(); db.ref('registered_ids/' + id).remove(); auth.currentUser.delete().then(() => showLobby()); } }
