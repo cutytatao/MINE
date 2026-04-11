@@ -499,9 +499,13 @@
             let watchedCount = 0;
             let watchingCount = 0;
             let unwatchedCount = 0;
+            let totalCount = 0;
 
+            // 일반 애니메이션 통계
             animeData.forEach(item => {
                 if (item.isManga || item.isEpisode) return;
+                
+                totalCount++;
                 
                 const seasons = item.seasons || [];
                 if (seasons.length === 0) return;
@@ -520,8 +524,27 @@
                 }
             });
 
+            // 만화와 장편 통계
+            animeData.forEach(item => {
+                if (!item.isManga && !item.isEpisode) return;
+                
+                totalCount++;
+                
+                if (item.currentVol === 0) {
+                    unwatchedCount++;
+                } else if (item.currentVol === item.totalVol) {
+                    watchedCount++;
+                } else {
+                    watchingCount++;
+                }
+            });
+
             const statsBar = document.getElementById('statsBar');
             statsBar.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">전체</div>
+                    <div class="stat-value">${totalCount}</div>
+                </div>
                 <div class="stat-item">
                     <div class="stat-label">시청 완료</div>
                     <div class="stat-value">${watchedCount}</div>
@@ -675,8 +698,8 @@
             });
         }
 
-        function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); renderDashboard(); } }
-        function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); renderDashboard(); } }
+        function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
+        function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
         function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); } }
         function addSeasonWithFocus(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); setTimeout(() => { const input = document.getElementById(`si-${id}`); if (input) { input.focus(); } }, 50); } }
         function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); renderDashboard(); } }
@@ -720,7 +743,7 @@
             }
             
             const itemId = parseInt(e.dataTransfer.getData('itemId')); 
-            const fromTierId = e.dataTransfer.getData('fromTierId');
+            const fromTierId = e.dataTransfer.getData('fromTierId') || 'dashboard';
             const item = animeData.find(a => a.id === itemId); 
             
             if (!item) return;
