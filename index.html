@@ -501,7 +501,7 @@
             let unwatchedCount = 0;
 
             animeData.forEach(item => {
-                if (item.isManga || item.isEpisode || item.isShort) return;
+                if (item.isManga || item.isEpisode) return;
                 
                 const seasons = item.seasons || [];
                 if (seasons.length === 0) return;
@@ -643,7 +643,7 @@
                     });
                     content += `</div>
                         <div class="add-season-form">
-                            <input type="text" placeholder="기수 추가" onkeypress="if(event.key==='Enter') { addSeason(${item.id}, this.value); this.value=''; this.focus(); }" />
+                            <input type="text" id="si-${item.id}" placeholder="기수 추가" onkeypress="if(event.key==='Enter') { addSeasonWithFocus(${item.id}, this.value); }" />
                         </div>`;
                 }
                 
@@ -678,6 +678,7 @@
         function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); renderDashboard(); } }
         function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); renderDashboard(); } }
         function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); } }
+        function addSeasonWithFocus(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); setTimeout(() => { const input = document.getElementById(`si-${id}`); if (input) { input.focus(); } }, 50); } }
         function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); renderDashboard(); } }
         function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item && item.seasons && item.seasons[idx]) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); renderDashboard(); updateStats(); } }
         function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); renderTierBoard(); } }
