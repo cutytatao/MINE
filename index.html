@@ -632,7 +632,7 @@
                 const tierInfo = tierSettings.find(t => t.id === item.tierId);
                 const tierBadge = tierInfo ? `<div class="tier-badge" style="background-color: ${tierInfo.color};">${tierInfo.name}</div>` : '';
                 
-                let content = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" />
+                let content = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" onclick="moveAnimeToTier(${item.id})" style="cursor: pointer;" />
                     <div class="card-body">
                         ${tierBadge}
                         <div class="card-title">${item.title}</div>`;
@@ -691,7 +691,7 @@
                         <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
                     </div>
                     <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)" onclick="cycleTierForward(${item.id})"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" onclick="moveAnimeWithinTiers(${item.id})" style="cursor: pointer;" /></div>`).join('')}
                     </div>
                 `;
                 tierBoard.appendChild(row);
@@ -709,6 +709,61 @@
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
+        
+        function moveAnimeToTier(itemId) {
+            const item = animeData.find(a => a.id === itemId);
+            if (!item) return;
+            
+            // 대시보드에서 첫 번째 티어로 이동
+            if (item.tierId === 'none') {
+                if (tierSettings.length > 0) {
+                    item.tierId = tierSettings[0].id;
+                }
+            } else {
+                // 이미 티어에 있으면 내부 이동 함수 호출
+                moveAnimeWithinTiers(itemId);
+                return;
+            }
+            
+            saveData();
+            renderDashboard();
+            renderTierBoard();
+        }
+        
+        function moveAnimeWithinTiers(itemId) {
+            const item = animeData.find(a => a.id === itemId);
+            if (!item) return;
+            
+            const currentTierId = item.tierId;
+            const currentTierIndex = tierSettings.findIndex(t => t.id === currentTierId);
+            if (currentTierIndex === -1) return;
+            
+            // 현재 티어의 애니들을 가로 위치 순서대로 정렬
+            const currentTierItems = animeData.filter(a => a.tierId === currentTierId);
+            const currentIndex = currentTierItems.findIndex(a => a.id === itemId);
+            
+            // 현재 티어에서 오른쪽으로 한 칸 이동 가능한지 확인
+            if (currentIndex < currentTierItems.length - 1) {
+                // 같은 티어 내에서 위치 교환 (순서 변경)
+                const nextItem = currentTierItems[currentIndex + 1];
+                // 실제로는 순서만 변경하면 되므로 직접 배열 순서를 재정렬
+                const itemIndex = animeData.findIndex(a => a.id === itemId);
+                const nextItemIndex = animeData.findIndex(a => a.id === nextItem.id);
+                [animeData[itemIndex], animeData[nextItemIndex]] = [animeData[nextItemIndex], animeData[itemIndex]];
+            } else {
+                // 다음 티어로 이동
+                if (currentTierIndex < tierSettings.length - 1) {
+                    item.tierId = tierSettings[currentTierIndex + 1].id;
+                } else {
+                    // 마지막 티어에서 대시보드로 돌아가기
+                    item.tierId = 'none';
+                }
+            }
+            
+            saveData();
+            renderDashboard();
+            renderTierBoard();
+        }
         
         function cycleTierForward(itemId) {
             const item = animeData.find(a => a.id === itemId);
