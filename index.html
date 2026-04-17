@@ -755,8 +755,10 @@
                 if (currentTierIndex < tierSettings.length - 1) {
                     item.tierId = tierSettings[currentTierIndex + 1].id;
                 } else {
-                    // 마지막 티어에서 대시보드로 돌아가기
-                    item.tierId = 'none';
+                    // 마지막 티어에서 첫 번째 티어로 순환
+                    if (tierSettings.length > 0) {
+                        item.tierId = tierSettings[0].id;
+                    }
                 }
             }
             
@@ -869,4 +871,3 @@
         function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { const id = currentUser.email.split('@')[0]; db.ref(`users/${currentUser.uid}`).remove(); db.ref('registered_ids/' + id).remove(); auth.currentUser.delete().then(() => showLobby()); } }
     </script>
 </body>
-</html>
