@@ -127,14 +127,14 @@
         .patch-notes-content { font-size: 9px; line-height: 1.3; color: var(--text-light); white-space: pre-wrap; word-break: break-word; max-height: 100px; overflow-y: auto; }
         
         .tier-board { display: flex; flex-direction: column; gap: 8px; }
-        .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
-        .tier-header { min-width: 70px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 6px; }
+        .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: visible; border: 1px solid var(--border-color); flex-wrap: wrap; align-content: flex-start; }
+        .tier-header { min-width: 70px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 6px; flex-shrink: 0; }
         .tier-name { font-weight: 700; font-size: 14px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
         .tier-color-input { width: 36px; height: 24px; border: none; border-radius: 4px; cursor: pointer; }
         .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
         .color-option { width: 24px; height: 24px; border-radius: 3px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .color-option:hover { transform: scale(1.1); border-color: #333; }
-        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow-x: auto; align-items: center; transition: background-color 0.2s; }
+        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow: visible; flex-wrap: wrap; align-content: flex-start; transition: background-color 0.2s; align-items: flex-start; }
         .tier-item { width: 70px; height: 98px; flex-shrink: 0; border-radius: 4px; overflow: hidden; cursor: grab; }
         .tier-item img { width: 100%; height: 100%; object-fit: cover; }
         .tier-item:active { cursor: grabbing; }
@@ -691,7 +691,7 @@
                         <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
                     </div>
                     <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
+                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)" onclick="cycleTierForward(${item.id})"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" /></div>`).join('')}
                     </div>
                 `;
                 tierBoard.appendChild(row);
@@ -709,6 +709,22 @@
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
+        
+        function cycleTierForward(itemId) {
+            const item = animeData.find(a => a.id === itemId);
+            if (!item) return;
+            
+            const currentTierId = item.tierId;
+            const tierIds = ['none', ...tierSettings.map(t => t.id)];
+            const currentIndex = tierIds.indexOf(currentTierId);
+            const nextIndex = (currentIndex + 1) % tierIds.length;
+            const nextTierId = tierIds[nextIndex];
+            
+            item.tierId = nextTierId;
+            saveData();
+            renderDashboard();
+            renderTierBoard();
+        }
         
         function dragStart(e, id, tierId) { 
             e.dataTransfer.effectAllowed = 'move'; 
