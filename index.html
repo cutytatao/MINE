@@ -635,7 +635,10 @@
                 let content = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" onclick="moveAnimeToTier(${item.id})" style="cursor: pointer;" />
                     <div class="card-body">
                         ${tierBadge}
-                        <div class="card-title">${item.title}</div>`;
+                        <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span>${item.title}</span>
+                            <button onclick="changeImageUrl(${item.id})" style="background: none; border: none; font-size: 14px; cursor: pointer; padding: 0; color: #666;">🖼️</button>
+                        </div>`;
                 
                 if (item.isManga || item.isEpisode) {
                     const percent = item.totalVol > 0 ? Math.round((item.currentVol / item.totalVol) * 100) : 0;
@@ -670,7 +673,8 @@
                         </div>`;
                 }
                 
-                content += `<button class="delete-btn" style="margin-top: 6px; width: 100%;" onclick="deleteItem(${item.id})">삭제</button></div>`;
+                content += `<button class="delete-btn" style="margin-top: 6px; width: 100%;" onclick="deleteItem(${item.id})">삭제</button>
+                </div>`;
                 card.innerHTML = content;
                 dashboard.appendChild(card);
             });
@@ -708,6 +712,19 @@
         function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); renderTierBoard(); } }
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
+        
+        function changeImageUrl(id) {
+            const item = animeData.find(a => a.id === id);
+            if (!item) return;
+            
+            const newUrl = prompt('새로운 이미지 주소를 입력하세요:', item.imgUrl);
+            if (newUrl && newUrl.trim()) {
+                item.imgUrl = newUrl.trim();
+                saveData();
+                renderDashboard();
+                renderTierBoard();
+            }
+        }
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
         
         function moveAnimeToTier(itemId) {
@@ -871,3 +888,4 @@
         function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { const id = currentUser.email.split('@')[0]; db.ref(`users/${currentUser.uid}`).remove(); db.ref('registered_ids/' + id).remove(); auth.currentUser.delete().then(() => showLobby()); } }
     </script>
 </body>
+</html>
