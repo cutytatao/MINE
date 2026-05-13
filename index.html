@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root { 
@@ -60,16 +61,25 @@
         .help-content li { margin-bottom: 12px; }
         .help-content strong { color: var(--primary); }
         
-        #dashboardContainer { display: none; width: 100%; height: 100%; flex-direction: row; background: #ffffff; }
-        .top-bar { position: fixed; top: 0; left: 0; right: 0; padding: 12px 20px; display: flex; gap: 10px; align-items: center; z-index: 100; background: #ffffff; border-bottom: 1px solid var(--border-color); height: 50px; box-sizing: border-box; flex-wrap: wrap; }
+        #dashboardContainer { display: none; width: 100%; height: 100%; flex-direction: column; background: #ffffff; }
+        .tab-container { display: flex; gap: 0; border-bottom: 2px solid var(--border-color); background: #f8f9fa; }
+        .tab-btn { padding: 12px 24px; background: transparent; border: none; cursor: pointer; font-weight: 600; color: var(--text-secondary); font-size: 14px; transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-btn:hover { color: var(--primary); }
+        
+        .tab-content { display: none; flex: 1; overflow: hidden; }
+        .tab-content.active { display: flex; }
+        
+        .dashboard-wrapper { display: flex; flex: 1; height: calc(100vh - 100px); }
+        .top-bar { position: relative; padding: 12px 20px; display: flex; gap: 10px; align-items: center; z-index: 100; background: #ffffff; border-bottom: 1px solid var(--border-color); height: 50px; box-sizing: border-box; flex-wrap: wrap; }
         .user-info { color: var(--text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
-        .left-panel { flex: 2; padding: 0 20px 20px 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: calc(100vh - 50px); box-sizing: border-box; margin-top: 50px; }
+        .left-panel { flex: 2; padding: 0 20px 20px 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
-        .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; margin-top: 50px; height: calc(100vh - 50px); padding-bottom: 100px; }
+        .right-panel { flex: 1; background-color: #f8f9fa; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; height: 100%; padding-bottom: 100px; }
         
         .top-bar .input-group { display: flex; gap: 6px; align-items: center; flex: 1; margin: 0; }
         .top-bar .search-group { display: flex; gap: 6px; align-items: center; flex: 0.8; }
-        input[type="text"], input[type="number"], input[type="search"], textarea { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; box-sizing: border-box; }
+        input[type="text"], input[type="number"], input[type="search"], input[type="date"], textarea, select { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; color: var(--text-light); font-size: 11px; outline: none; box-sizing: border-box; }
         textarea { font-family: 'Pretendard', sans-serif; resize: vertical; }
         #title { flex: 1.5; min-width: 120px; height: 28px; }
         #imgUrl { flex: 1; min-width: 100px; height: 28px; }
@@ -82,6 +92,8 @@
         .add-btn:hover { background: #4a52d5; transform: translateY(-1px); }
         .help-btn { padding: 6px 14px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; height: 28px; white-space: nowrap; }
         .help-btn:hover { background: #5a6268; }
+        .delete-btn { padding: 6px 14px; background: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; height: 28px; white-space: nowrap; }
+        .delete-btn:hover { background: #e63946; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
         .card { background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: all 0.3s; }
@@ -98,104 +110,122 @@
         .progress-text { font-size: 9px; color: var(--text-secondary); display: flex; justify-content: space-between; margin-bottom: 2px; }
         .progress-bar-bg { width: 100%; height: 4px; background: #e9ecef; border-radius: 2px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--manga-color); transition: width 0.3s ease; }
-        .episode-progress-fill { background: var(--episode-color); }
-        .manga-edit-group { display: flex; align-items: center; gap: 3px; margin-top: 4px; font-size: 9px; }
-        .manga-edit-group input { width: 30px; padding: 2px; font-size: 9px; text-align: center; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); border-radius: 3px; }
-
-        .series-list { display: flex; flex-direction: column; gap: 4px; }
-        .season-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); line-height: 1; cursor: pointer; transition: all 0.2s; }
-        .season-item:hover { transform: translateX(2px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .st-upcoming { background-color: #ff5252; }
-        .st-towatch { background-color: #ffc107; color: #333; }
-        .st-watched { background-color: #4caf50; }
-        .short-square { width: 40px; height: 40px; border-radius: 4px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-        .status-btn { background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 2px; cursor: pointer; padding: 0 2px; font-size: 7px; color: #333; font-weight: bold; line-height: 1; height: 14px; display: flex; align-items: center; }
+        .episode-progress-fill { background: var(--episode-color) !important; }
+        .manga-edit-group { display: flex; align-items: center; gap: 2px; margin-top: 4px; }
+        .manga-edit-group input { flex: 1; padding: 2px 4px; font-size: 9px; }
+        .manga-edit-group span { font-size: 9px; color: var(--text-secondary); }
         
-        .add-season-form { display: flex; gap: 2px; margin-top: 2px; padding-top: 2px; border-top: 1px dashed var(--border-color); }
-        .add-season-form input { padding: 2px 3px; font-size: 7px; border-radius: 2px; flex: 1; background: #ffffff; color: var(--text-light); border: 1px solid var(--border-color); height: 16px; }
+        .series-list { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+        .season-item { display: flex; padding: 4px 6px; background: #f1f3f5; border-radius: 4px; font-size: 10px; cursor: pointer; transition: all 0.2s; }
+        .season-item.st-upcoming { background: var(--color-upcoming); color: white; }
+        .season-item.st-towatch { background: var(--color-towatch); color: white; }
+        .season-item.st-watched { background: var(--color-watched); color: white; }
+        .season-item:hover { transform: scale(1.05); }
+        .status-btn { background: rgba(0,0,0,0.2); border: none; color: white; cursor: pointer; padding: 0 4px; border-radius: 2px; font-size: 10px; font-weight: bold; }
+        .short-square { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .short-square:hover { transform: scale(1.1); }
         
-        .delete-btn { background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: 600; }
-        .delete-btn:hover { background: #e03131; }
+        .add-season-form { display: flex; gap: 4px; margin-top: 6px; }
+        .add-season-form input { flex: 1; padding: 4px 6px; font-size: 10px; }
         
-        .patch-notes-section { background: #f1f3f5; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; margin-bottom: 10px; }
-        .patch-notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 6px; }
-        .patch-notes-header h3 { margin: 0; font-size: 11px; font-weight: 700; }
-        .patch-version { font-size: 9px; color: var(--text-secondary); white-space: nowrap; }
-        .patch-nav-btn { background: var(--primary); color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-        .patch-nav-btn:hover { background: #4a52d5; }
-        .patch-nav-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .patch-notes-content { font-size: 9px; line-height: 1.3; color: var(--text-light); white-space: pre-wrap; word-break: break-word; max-height: 100px; overflow-y: auto; }
+        .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; padding: 12px; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px; }
+        .stat-item { flex: 1; text-align: center; }
+        .stat-label { color: var(--text-secondary); font-size: 10px; }
+        .stat-value { font-size: 18px; font-weight: 700; color: var(--primary); }
         
-        .tier-board { display: flex; flex-direction: column; gap: 8px; }
-        .tier-row { display: flex; background: #ffffff; border-radius: 8px; overflow: visible; border: 1px solid var(--border-color); flex-wrap: wrap; align-content: flex-start; }
-        .tier-header { min-width: 70px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); position: relative; gap: 6px; flex-shrink: 0; }
-        .tier-name { font-weight: 700; font-size: 14px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        .tier-color-input { width: 36px; height: 24px; border: none; border-radius: 4px; cursor: pointer; }
-        .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
-        .color-option { width: 24px; height: 24px; border-radius: 3px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-        .color-option:hover { transform: scale(1.1); border-color: #333; }
-        .tier-items { flex: 1; display: flex; gap: 6px; padding: 6px; overflow: visible; flex-wrap: wrap; align-content: flex-start; transition: background-color 0.2s; align-items: flex-start; }
-        .tier-item { width: 70px; height: 98px; flex-shrink: 0; border-radius: 4px; overflow: hidden; cursor: grab; }
-        .tier-item img { width: 100%; height: 100%; object-fit: cover; }
+        .tier-board { flex: 1; overflow-y: auto; }
+        .tier-row { display: flex; margin-bottom: 12px; gap: 8px; }
+        .tier-header { padding: 8px 12px; border-radius: 6px; min-width: 50px; display: flex; align-items: center; justify-content: center; gap: 6px; position: relative; }
+        .tier-name { font-size: 12px; font-weight: 700; color: white; }
+        .tier-items { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; align-content: flex-start; }
+        .tier-item { width: 100px; height: 140px; background: #f1f3f5; border-radius: 6px; overflow: hidden; cursor: grab; transition: all 0.2s; position: relative; }
         .tier-item:active { cursor: grabbing; }
-        
-        .tier-add-btn { padding: 8px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; margin-top: 8px; }
+        .tier-item img { width: 100%; height: 100%; object-fit: cover; }
+        .tier-item.drag-over { opacity: 0.5; }
+        .tier-add-btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; margin-top: 12px; }
         .tier-add-btn:hover { background: #4a52d5; }
         
-        .stats-bar { display: flex; gap: 8px; margin-top: 12px; font-size: 11px; }
-        .stat-item { flex: 1; background: #f1f3f5; padding: 8px; border-radius: 4px; text-align: center; }
-        .stat-label { font-size: 9px; color: var(--text-secondary); }
-        .stat-value { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px; }
+        .color-palette { position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .color-option { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .color-option:hover { transform: scale(1.1); }
         
-        .error-msg { color: var(--danger); font-size: 12px; margin-top: 8px; }
+        .patch-notes-display { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 11px; max-height: 150px; overflow-y: auto; }
+        .patch-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .patch-nav button { padding: 4px 8px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        .patch-nav span { font-weight: 600; font-size: 10px; }
+        
+        /* 굿즈 관리 탭 스타일 */
+        .goods-wrapper { display: flex; gap: 12px; flex: 1; }
+        .goods-left { flex: 1; display: flex; flex-direction: column; }
+        .goods-right { flex: 1; display: flex; flex-direction: column; }
+        .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .form-group label { font-size: 11px; font-weight: 600; color: var(--text-light); }
+        .form-group input, .form-group select, .form-group textarea { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; }
+        .form-group textarea { resize: vertical; min-height: 50px; }
+        .goods-list { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; flex: 1; overflow-y: auto; }
+        .goods-item { padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; font-size: 11px; }
+        .goods-item:hover { background: #f1f3f5; }
+        .goods-item:last-child { border-bottom: none; }
+        .goods-item-title { font-weight: 600; color: var(--primary); }
+        .goods-item-meta { color: var(--text-secondary); font-size: 10px; margin-top: 2px; }
+        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .goods-chart { width: 100%; height: 100%; max-width: 300px; max-height: 300px; }
+        
+        .goods-detail-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; max-width: 400px; width: 90%; }
+        .goods-detail-modal.active { display: block; }
+        .goods-detail-modal .close-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); }
+        .goods-detail-modal h3 { margin: 0 0 16px 0; font-size: 18px; color: var(--primary); }
+        .detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 12px; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { font-weight: 600; color: var(--text-light); }
+        .detail-value { color: var(--text-secondary); }
+        
+        .goods-add-btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; width: 100%; }
+        .goods-add-btn:hover { background: #4a52d5; }
     </style>
 </head>
 <body>
-    <!-- 로그인 로비 -->
+    <!-- 로비 -->
     <div id="lobbyContainer">
         <div class="lobby-left">
             <div class="lobby-title">
                 Anime Archive
-                <span>가입된 계정을 클릭하세요</span>
+                <span>v2.2</span>
             </div>
             <div class="user-grid" id="userGrid"></div>
         </div>
-        
         <div class="lobby-right">
             <div class="login-box">
-                <h2 id="loginTitle">로그인</h2>
-                <p id="loginSubtitle">계정을 선택해주세요</p>
-                <input type="password" id="passwordInput" class="input-field" placeholder="비밀번호" />
+                <h2 id="loginTitle">계정 선택</h2>
+                <p id="loginSubtitle">좌측에서 계정을 선택하세요</p>
+                <input type="password" class="input-field" id="passwordInput" placeholder="비밀번호" onkeypress="if(event.key==='Enter') login();" />
                 <button class="btn btn-primary" id="loginBtn" onclick="login()" disabled>로그인</button>
-                <div id="loginError" class="error-msg"></div>
+                <div id="loginError" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></div>
             </div>
-
             <div class="signup-section">
                 <h2>새 계정 만들기</h2>
-                <input type="text" id="newUsername" class="input-field" placeholder="아이디" />
-                <input type="password" id="newPassword" class="input-field" placeholder="비밀번호" />
+                <input type="text" class="input-field" id="newUsername" placeholder="아이디" />
+                <input type="password" class="input-field" id="newPassword" placeholder="비밀번호" />
                 <button class="btn btn-primary" onclick="signup()">회원가입</button>
-                <div id="signupError" class="error-msg"></div>
+                <div id="signupError" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></div>
             </div>
-            
-            <button class="admin-tab" onclick="showAdminModal()">운영자</button>
         </div>
     </div>
 
-    <!-- 운영자 모달 -->
+    <!-- 관리자 모달 -->
     <div id="adminModal">
         <div class="admin-modal-content">
             <button class="close-btn" onclick="closeAdminModal()">×</button>
-            <h2>운영자 패널</h2>
-            <input type="password" id="adminPassword" class="input-field" placeholder="운영자 비밀번호" />
-            <button class="btn btn-primary" onclick="adminLogin()" style="margin-top: 12px;">접속</button>
-            <div id="adminContent" style="display: none; margin-top: 20px;">
-                <h3>패치노트 작성</h3>
-                <textarea id="patchNoteText" class="input-field" placeholder="패치노트 내용을 입력하세요..." style="width: 100%; height: 150px; margin-bottom: 12px;"></textarea>
-                <button class="btn btn-primary" onclick="savePatchNote()">저장</button>
-                <div id="adminMessage" class="error-msg"></div>
+            <h2>🔐 운영자 패널</h2>
+            <input type="password" class="input-field" id="adminPassword" placeholder="운영자 비밀번호" onkeypress="if(event.key==='Enter') adminLogin();" />
+            <button class="btn btn-primary" onclick="adminLogin()">접속</button>
+            <div id="adminError" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></div>
+            <div id="adminContent" style="display: none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h3 style="margin: 0 0 12px 0; font-size: 16px;">패치노트 작성</h3>
+                <textarea id="patchNoteText" placeholder="패치노트 내용을 입력하세요..." style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px;"></textarea>
+                <button class="btn btn-primary" onclick="savePatchNote()" style="margin-top: 10px;">저장</button>
             </div>
-            <div id="adminError" class="error-msg"></div>
         </div>
     </div>
 
@@ -229,9 +259,19 @@
 
     <!-- 대시보드 -->
     <div id="dashboardContainer">
-        <div class="left-panel">
-            <div class="top-bar" style="position: relative; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; width: calc(100% + 40px); border-bottom: 1px solid var(--border-color);">
-                <span class="user-info" id="userDisplay"></span>
+        <!-- 탭 시스템 -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab(0)">📺 Anime Archive</button>
+            <button class="tab-btn" onclick="switchTab(1)">🎁 Goods Manager</button>
+            <span class="user-info" id="userDisplay" style="margin-left: auto; margin-right: 20px;"></span>
+            <button class="help-btn" onclick="showHelpModal()">도움말</button>
+            <button class="delete-btn" onclick="deleteAccount()">계정 삭제</button>
+            <button class="btn btn-primary" style="width: 80px; padding: 6px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
+        </div>
+
+        <!-- 탭 1: Anime Archive -->
+        <div class="tab-content active" id="tab0">
+            <div class="top-bar">
                 <div class="input-group">
                     <input type="text" id="title" placeholder="제목" onkeypress="if(event.key==='Enter') document.getElementById('imgUrl').focus();" />
                     <input type="text" id="imgUrl" placeholder="이미지 주소" onkeypress="if(event.key==='Enter') addItem();" />
@@ -250,23 +290,91 @@
                 <div class="search-group">
                     <input type="search" id="searchInput" placeholder="검색..." onkeyup="filterDashboard()" />
                 </div>
-                <button class="help-btn" onclick="showHelpModal()">도움말</button>
-                <button class="delete-btn" onclick="deleteAccount()">계정 삭제</button>
-                <button class="btn btn-primary" style="width: 80px; padding: 6px 12px; font-size: 12px;" onclick="logout()">로그아웃</button>
             </div>
-            
-            <div class="dashboard-container">
-                <div class="dashboard" id="dashboard"></div>
+            <div class="dashboard-wrapper">
+                <div class="left-panel">
+                    <div class="dashboard-container">
+                        <div class="dashboard" id="dashboard"></div>
+                    </div>
+                </div>
+                <div class="right-panel">
+                    <div id="patchNotesDisplay"></div>
+                    <div class="stats-bar" id="statsBar"></div>
+                    <div class="tier-board" id="tierBoard"></div>
+                    <button class="tier-add-btn" onclick="addTierRow()">등급 추가</button>
+                </div>
             </div>
         </div>
 
-        <div class="right-panel">
-            <div id="patchNotesDisplay"></div>
-            <div class="stats-bar" id="statsBar"></div>
-            <div class="tier-board" id="tierBoard"></div>
-            <button class="tier-add-btn" onclick="addTierRow()">등급 추가</button>
+        <!-- 탭 2: Goods Manager -->
+        <div class="tab-content" id="tab1">
+            <div class="goods-wrapper">
+                <div class="goods-left">
+                    <div class="goods-form">
+                        <div class="form-group">
+                            <label>금액</label>
+                            <input type="number" id="goodsPrice" placeholder="가격" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>제목</label>
+                            <input type="text" id="goodsTitle" placeholder="상품명" />
+                        </div>
+                        <div class="form-group">
+                            <label>카테고리</label>
+                            <select id="goodsCategory">
+                                <option value="">선택하세요</option>
+                                <option value="아크릴">아크릴</option>
+                                <option value="피규어">피규어</option>
+                                <option value="만화책">만화책</option>
+                                <option value="포스터">포스터</option>
+                                <option value="포토카드">포토카드</option>
+                                <option value="티켓">티켓</option>
+                                <option value="기타">기타</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>관련 애니</label>
+                            <select id="goodsAnime">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>구매 날짜</label>
+                            <input type="date" id="goodsDate" />
+                        </div>
+                        <div class="form-group">
+                            <label>상태</label>
+                            <select id="goodsCondition">
+                                <option value="새상품">새상품</option>
+                                <option value="중고">중고</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>설명</label>
+                            <textarea id="goodsDescription" placeholder="상품에 대한 설명"></textarea>
+                        </div>
+                        <button class="goods-add-btn" onclick="addGoods()">추가</button>
+                    </div>
+                    <div class="goods-list" id="goodsList"></div>
+                </div>
+                <div class="goods-right">
+                    <div class="goods-chart-container">
+                        <canvas class="goods-chart" id="goodsChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- 굿즈 상세 정보 모달 -->
+    <div class="goods-detail-modal" id="goodsDetailModal">
+        <button class="close-btn" onclick="closeGoodsDetail()">×</button>
+        <h3 id="detailTitle"></h3>
+        <div id="detailContent"></div>
+    </div>
+
+    <!-- 운영자 버튼 -->
+    <button class="admin-tab" onclick="showAdminModal()">🔐 운영자</button>
 
     <script>
         const firebaseConfig = {
@@ -287,8 +395,11 @@
         let selectedId = null;
         let animeData = [];
         let tierSettings = [];
+        let goodsData = [];
         let patchNotes = [];
         let currentPatchIndex = 0;
+        let goodsChart = null;
+        let selectedGoodsId = null;
         const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
         auth.onAuthStateChanged(user => {
@@ -398,11 +509,8 @@
         function loadPatchNotes() {
             db.ref('system/patchNotes').once('value', snapshot => {
                 patchNotes = snapshot.val() || [];
-                if (!Array.isArray(patchNotes)) patchNotes = [];
                 currentPatchIndex = patchNotes.length - 1;
-                if (patchNotes.length > 0) {
-                    document.getElementById('patchNoteText').value = patchNotes[currentPatchIndex].content;
-                }
+                renderPatchNotes();
             });
         }
 
@@ -410,28 +518,37 @@
             const content = document.getElementById('patchNoteText').value.trim();
             if (!content) return alert('패치노트 내용을 입력하세요');
             
-            const newPatch = {
+            const newNote = {
                 version: patchNotes.length + 1,
                 content: content,
-                lastUpdated: new Date().toLocaleString('ko-KR')
+                date: new Date().toLocaleString('ko-KR')
             };
-            
-            patchNotes.push(newPatch);
+            patchNotes.push(newNote);
+            db.ref('system/patchNotes').set(patchNotes);
+            document.getElementById('patchNoteText').value = '';
             currentPatchIndex = patchNotes.length - 1;
+            renderPatchNotes();
+        }
+
+        function renderPatchNotes() {
+            const display = document.getElementById('patchNotesDisplay');
+            if (patchNotes.length === 0) {
+                display.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 11px;">패치노트가 없습니다</div>';
+                return;
+            }
             
-            db.ref('system/patchNotes').set(patchNotes)
-                .then(() => {
-                    document.getElementById('adminMessage').textContent = '패치노트가 저장되었습니다!';
-                    document.getElementById('adminMessage').style.color = '#51cf66';
-                    document.getElementById('patchNoteText').value = '';
-                    setTimeout(() => {
-                        document.getElementById('adminMessage').textContent = '';
-                    }, 2000);
-                })
-                .catch(err => {
-                    document.getElementById('adminMessage').textContent = '저장 실패: ' + err.message;
-                    document.getElementById('adminMessage').style.color = '#fa5252';
-                });
+            const note = patchNotes[currentPatchIndex];
+            display.innerHTML = `
+                <div class="patch-notes-display">
+                    <div class="patch-nav">
+                        <button onclick="prevPatchNote()" ${currentPatchIndex === 0 ? 'disabled' : ''}>◀</button>
+                        <span>v${note.version}</span>
+                        <button onclick="nextPatchNote()" ${currentPatchIndex === patchNotes.length - 1 ? 'disabled' : ''}>▶</button>
+                    </div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">${note.date}</div>
+                    <div style="line-height: 1.4; white-space: pre-wrap; word-break: break-word;">${note.content}</div>
+                </div>
+            `;
         }
 
         function prevPatchNote() {
@@ -451,157 +568,62 @@
         function loadDashboard() {
             document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'flex';
-            document.getElementById('userDisplay').textContent = `${currentUser.email.split('@')[0]} 님`;
+            document.getElementById('userDisplay').textContent = `${selectedId} 님 환영합니다`;
             
-            db.ref(`users/${currentUser.uid}`).on('value', snapshot => {
+            const uid = currentUser.uid;
+            db.ref(`users/${uid}`).on('value', snapshot => {
                 const data = snapshot.val() || {};
                 animeData = data.animeData || [];
-                tierSettings = data.tierSettings || [
-                    { id: 't1', name: 'S', color: '#ff6b6b' },
-                    { id: 't2', name: 'A', color: '#ffd43b' },
-                    { id: 't3', name: 'B', color: '#51cf66' },
-                    { id: 't4', name: 'C', color: '#74c0fc' }
-                ];
+                tierSettings = data.tierSettings || [];
+                goodsData = data.goodsData || [];
                 renderDashboard();
                 renderTierBoard();
                 updateStats();
+                renderGoodsList();
+                updateGoodsChart();
+                updateGoodsAnimeSelect();
             });
+            loadPatchNotes();
+        }
 
-            db.ref('system/patchNotes').on('value', snapshot => {
-                patchNotes = snapshot.val() || [];
-                if (!Array.isArray(patchNotes)) patchNotes = [];
-                currentPatchIndex = patchNotes.length - 1;
-                renderPatchNotes();
+        function saveData() {
+            if (!currentUser) return;
+            const uid = currentUser.uid;
+            db.ref(`users/${uid}`).set({
+                animeData: animeData,
+                tierSettings: tierSettings,
+                goodsData: goodsData
             });
         }
 
-        function renderPatchNotes() {
-            const display = document.getElementById('patchNotesDisplay');
-            if (!patchNotes.length || currentPatchIndex < 0) {
-                display.innerHTML = '';
-                return;
-            }
-            const patch = patchNotes[currentPatchIndex];
-            display.innerHTML = `
-                <div class="patch-notes-section">
-                    <div class="patch-notes-header">
-                        <button class="patch-nav-btn" onclick="prevPatchNote()" ${currentPatchIndex === 0 ? 'disabled' : ''}>◀</button>
-                        <h3>📢 v${patch.version}</h3>
-                        <button class="patch-nav-btn" onclick="nextPatchNote()" ${currentPatchIndex === patchNotes.length - 1 ? 'disabled' : ''}>▶</button>
-                    </div>
-                    <div class="patch-notes-content">${patch.content}</div>
-                    <div style="font-size: 8px; color: var(--text-secondary); margin-top: 4px;">${patch.lastUpdated}</div>
-                </div>
-            `;
-        }
-
-        function updateStats() {
-            let watchedCount = 0;
-            let watchingCount = 0;
-            let unwatchedCount = 0;
-            let totalCount = 0;
-
-            // 일반 애니메이션 통계
-            animeData.forEach(item => {
-                if (item.isManga || item.isEpisode) return;
-                
-                totalCount++;
-                
-                const seasons = item.seasons || [];
-                if (seasons.length === 0) return;
-                
-                const allWatched = seasons.every(s => s.status === '✅');
-                const hasWatched = seasons.some(s => s.status === '✅');
-                const hasWatching = seasons.some(s => s.status === '👀');
-                const allUnwatched = seasons.every(s => s.status === '📅');
-
-                if (allWatched) {
-                    watchedCount++;
-                } else if (allUnwatched) {
-                    unwatchedCount++;
-                } else if (hasWatched || hasWatching) {
-                    watchingCount++;
-                }
-            });
-
-            // 만화와 장편 통계
-            animeData.forEach(item => {
-                if (!item.isManga && !item.isEpisode) return;
-                
-                totalCount++;
-                
-                if (item.currentVol === 0) {
-                    unwatchedCount++;
-                } else if (item.currentVol === item.totalVol) {
-                    watchedCount++;
-                } else {
-                    watchingCount++;
-                }
-            });
-
-            const statsBar = document.getElementById('statsBar');
-            statsBar.innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-label">전체</div>
-                    <div class="stat-value">${totalCount}</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">시청 완료</div>
-                    <div class="stat-value">${watchedCount}</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">시청 중</div>
-                    <div class="stat-value">${watchingCount}</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">시청 전</div>
-                    <div class="stat-value">${unwatchedCount}</div>
-                </div>
-            `;
-        }
-
-        function updateTypeDisplay() {
-            const isManga = document.getElementById('isManga').checked;
-            const isEpisode = document.getElementById('isEpisode').checked;
-            const isShort = document.getElementById('isShort').checked;
-            const totalVolInput = document.getElementById('totalVol');
-
-            if (isManga || isEpisode) {
-                totalVolInput.style.display = 'block';
-                totalVolInput.placeholder = isManga ? '권' : '화';
-            } else {
-                totalVolInput.style.display = 'none';
-            }
-
-            if ((isManga && isEpisode) || (isManga && isShort) || (isEpisode && isShort)) {
-                alert('하나의 타입만 선택할 수 있습니다');
-                document.getElementById('isManga').checked = false;
-                document.getElementById('isEpisode').checked = false;
-                document.getElementById('isShort').checked = false;
-                totalVolInput.style.display = 'none';
-            }
+        function switchTab(tabIndex) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab${tabIndex}`).classList.add('active');
+            event.target.classList.add('active');
         }
 
         function addItem() {
             const title = document.getElementById('title').value.trim();
-            const imgUrl = document.getElementById('imgUrl').value.trim() || 'https://via.placeholder.com/200x300?text=No+Poster';
+            const imgUrl = document.getElementById('imgUrl').value.trim();
             const isManga = document.getElementById('isManga').checked;
             const isEpisode = document.getElementById('isEpisode').checked;
             const isShort = document.getElementById('isShort').checked;
             const totalVol = parseInt(document.getElementById('totalVol').value) || 0;
 
-            if (!title) return alert('제목을 입력하세요');
+            if (!title || !imgUrl) return alert('제목과 이미지 주소를 입력하세요');
+            if ((isManga || isEpisode) && totalVol <= 0) return alert('권/화 수를 입력하세요');
 
             const item = {
                 id: Date.now(),
-                title,
-                imgUrl,
-                isManga,
-                isEpisode,
-                isShort,
+                title: title,
+                imgUrl: imgUrl,
+                isManga: isManga,
+                isEpisode: isEpisode,
+                isShort: isShort,
                 currentVol: 0,
-                totalVol,
-                seasons: (!isManga && !isEpisode && !isShort) ? [{ name: '', status: '📅' }] : (isShort ? [{ name: '', status: '📅' }] : []),
+                totalVol: totalVol,
+                seasons: isShort ? [{ name: '', status: '📅' }] : [],
                 tierId: 'none'
             };
 
@@ -614,20 +636,23 @@
             document.getElementById('isShort').checked = false;
             document.getElementById('totalVol').value = '';
             document.getElementById('totalVol').style.display = 'none';
-            document.getElementById('title').focus();
+            updateTypeDisplay();
+        }
+
+        function updateTypeDisplay() {
+            const isManga = document.getElementById('isManga').checked;
+            const isEpisode = document.getElementById('isEpisode').checked;
+            document.getElementById('totalVol').style.display = (isManga || isEpisode) ? 'block' : 'none';
         }
 
         function renderDashboard() {
             const dashboard = document.getElementById('dashboard');
             dashboard.innerHTML = '';
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            
-            animeData.filter(item => item.title.toLowerCase().includes(query)).forEach(item => {
+            animeData.forEach(item => {
                 const card = document.createElement('div');
-                card.className = `card ${item.isManga ? 'is-manga' : ''} ${item.isEpisode ? 'is-episode' : ''} ${item.isShort ? 'is-short' : ''}`;
+                card.className = 'card' + (item.isManga ? ' is-manga' : '') + (item.isEpisode ? ' is-episode' : '') + (item.isShort ? ' is-short' : '');
                 card.draggable = true;
-                card.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', item.id); e.target.style.opacity = '0.5'; };
-                card.ondragend = (e) => { e.target.style.opacity = '1'; document.querySelectorAll('.tier-items').forEach(el => el.style.backgroundColor = 'transparent'); };
+                card.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', item.id); };
                 
                 const tierInfo = tierSettings.find(t => t.id === item.tierId);
                 const tierBadge = tierInfo ? `<div class="tier-badge" style="background-color: ${tierInfo.color};">${tierInfo.name}</div>` : '';
@@ -692,31 +717,111 @@
                         <input type="text" class="tier-name" value="${tier.name}" onchange="updateTierName('${tier.id}', this.value)" style="width: 40px; border: none; background: transparent; text-align: center; font-weight: bold; color: white;">
                         <div class="color-palette" id="palette-${tier.id}" style="display: none;"></div>
                         <button onclick="toggleColorPalette('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold;">🎨</button>
-                        <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); cursor: pointer; font-size: 10px; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;">×</button>
+                        <button onclick="deleteTier('${tier.id}')" style="border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">×</button>
                     </div>
-                    <div class="tier-items" id="tier-${tier.id}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dragDrop(event, '${tier.id}')">
-                        ${items.map(item => `<div class="tier-item" draggable="true" ondragstart="dragStart(event, ${item.id}, '${tier.id}')" ondragend="dragEnd(event)"><img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Poster'" onclick="moveAnimeWithinTiers(${item.id})" style="cursor: pointer;" /></div>`).join('')}
-                    </div>
-                `;
+                    <div class="tier-items" ondrop="dropTier(event, '${tier.id}')" ondragover="allowDrop(event)" ondragleave="event.target.classList.remove('drag-over')">
+                    </div>`;
+                
+                const itemsContainer = row.querySelector('.tier-items');
+                items.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'tier-item';
+                    itemEl.draggable = true;
+                    itemEl.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('itemId', item.id); };
+                    itemEl.ondragover = (e) => { e.preventDefault(); e.target.closest('.tier-item')?.classList.add('drag-over'); };
+                    itemEl.ondragleave = (e) => { e.target.closest('.tier-item')?.classList.remove('drag-over'); };
+                    itemEl.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); };
+                    itemEl.onclick = () => moveAnimeWithinTiers(item.id);
+                    itemEl.innerHTML = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100x140?text=No+Poster'" />`;
+                    itemsContainer.appendChild(itemEl);
+                });
+                
                 tierBoard.appendChild(row);
+                initColorPalette(tier.id);
             });
         }
 
-        function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
-        function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
-        function addSeason(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); } }
-        function addSeasonWithFocus(id, name) { const item = animeData.find(a => a.id === id); if (item && item.isShort) return; if (item && name.trim()) { item.seasons.push({ name: name.trim(), status: '📅' }); saveData(); renderDashboard(); setTimeout(() => { const input = document.getElementById(`si-${id}`); if (input) { input.focus(); } }, 50); } }
-        function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); renderDashboard(); } }
-        function cycleStatus(id, idx) { const item = animeData.find(a => a.id === id); if(item && item.seasons && item.seasons[idx]) { item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; saveData(); renderDashboard(); updateStats(); } }
+        function initColorPalette(tierId) {
+            const colors = ['#ff6b6b', '#ffd43b', '#51cf66', '#339af0', '#845ef7', '#f06595', '#ff8787', '#a78bfa'];
+            const palette = document.getElementById(`palette-${tierId}`);
+            colors.forEach(color => {
+                const option = document.createElement('div');
+                option.className = 'color-option';
+                option.style.backgroundColor = color;
+                option.onclick = () => { updateTierColor(tierId, color); toggleColorPalette(tierId); };
+                palette.appendChild(option);
+            });
+        }
+
+        function toggleColorPalette(tierId) {
+            const palette = document.getElementById(`palette-${tierId}`);
+            palette.style.display = palette.style.display === 'none' ? 'grid' : 'none';
+        }
+
+        function updateStats() {
+            let completed = 0, watching = 0, notStarted = 0, total = 0;
+            animeData.forEach(item => {
+                if (item.isManga || item.isEpisode) {
+                    if (item.currentVol > 0) watching++;
+                    if (item.currentVol === item.totalVol && item.totalVol > 0) { completed++; watching--; }
+                    if (item.currentVol === 0) notStarted++;
+                    total++;
+                } else if (item.isShort) {
+                    const hasCompleted = item.seasons.some(s => s.status === '✅');
+                    const hasWatching = item.seasons.some(s => s.status === '👀');
+                    if (hasCompleted) completed++;
+                    else if (hasWatching) watching++;
+                    else notStarted++;
+                    total++;
+                } else {
+                    const hasCompleted = item.seasons.every(s => s.status === '✅');
+                    const hasWatching = item.seasons.some(s => s.status === '👀') || (item.seasons.some(s => s.status === '✅') && !hasCompleted);
+                    if (hasCompleted) completed++;
+                    else if (hasWatching) watching++;
+                    else notStarted++;
+                    total++;
+                }
+            });
+            document.getElementById('statsBar').innerHTML = `
+                <div class="stat-item"><div class="stat-label">전체</div><div class="stat-value">${total}</div></div>
+                <div class="stat-item"><div class="stat-label">시청 완료</div><div class="stat-value">${completed}</div></div>
+                <div class="stat-item"><div class="stat-label">시청 중</div><div class="stat-value">${watching}</div></div>
+                <div class="stat-item"><div class="stat-label">시청 전</div><div class="stat-value">${notStarted}</div></div>
+            `;
+        }
+
+        function addSeasonWithFocus(itemId, value) {
+            const item = animeData.find(a => a.id === itemId);
+            if (!item) return;
+            if (!value.trim()) return;
+            item.seasons.push({ name: value.trim(), status: '📅' });
+            saveData();
+            renderDashboard();
+            document.getElementById(`si-${itemId}`).value = '';
+            document.getElementById(`si-${itemId}`).focus();
+        }
+
+        function cycleStatus(id, idx) { 
+            const item = animeData.find(a => a.id === id); 
+            if(item && item.seasons && item.seasons[idx]) { 
+                item.seasons[idx].status = statusCfg[item.seasons[idx].status].next; 
+                saveData(); 
+                renderDashboard(); 
+                updateStats(); 
+            } 
+        }
+
         function updateTierName(id, name) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.name = name; saveData(); renderTierBoard(); } }
         function updateTierColor(id, color) { const tier = tierSettings.find(t => t.id === id); if(tier) { tier.color = color; saveData(); renderTierBoard(); } }
         function deleteTier(id) { animeData.forEach(a => { if(a.tierId === id) a.tierId = 'none'; }); tierSettings = tierSettings.filter(t => t.id !== id); saveData(); renderDashboard(); renderTierBoard(); }
         function deleteItem(id) { animeData = animeData.filter(a => a.id !== id); saveData(); renderDashboard(); updateStats(); }
+        function deleteSeason(id, idx) { const item = animeData.find(a => a.id === id); if(item) { item.seasons.splice(idx, 1); saveData(); renderDashboard(); } }
+        function updateVol(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.currentVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
+        function updateTotal(id, val) { const item = animeData.find(a => a.id === id); if(item) { item.totalVol = parseInt(val) || 0; saveData(); renderDashboard(); updateStats(); } }
         
         function changeImageUrl(id) {
             const item = animeData.find(a => a.id === id);
             if (!item) return;
-            
             const newUrl = prompt('새로운 이미지 주소를 입력하세요:', item.imgUrl);
             if (newUrl && newUrl.trim()) {
                 item.imgUrl = newUrl.trim();
@@ -725,19 +830,18 @@
                 renderTierBoard();
             }
         }
+
         function addTierRow() { tierSettings.push({ id: 't' + Date.now(), name: '등급', color: '#adb5bd' }); saveData(); renderTierBoard(); }
         
         function moveAnimeToTier(itemId) {
             const item = animeData.find(a => a.id === itemId);
             if (!item) return;
             
-            // 대시보드에서 첫 번째 티어로 이동
             if (item.tierId === 'none') {
                 if (tierSettings.length > 0) {
                     item.tierId = tierSettings[0].id;
                 }
             } else {
-                // 이미 티어에 있으면 내부 이동 함수 호출
                 moveAnimeWithinTiers(itemId);
                 return;
             }
@@ -755,24 +859,18 @@
             const currentTierIndex = tierSettings.findIndex(t => t.id === currentTierId);
             if (currentTierIndex === -1) return;
             
-            // 현재 티어의 애니들을 가로 위치 순서대로 정렬
             const currentTierItems = animeData.filter(a => a.tierId === currentTierId);
             const currentIndex = currentTierItems.findIndex(a => a.id === itemId);
             
-            // 현재 티어에서 오른쪽으로 한 칸 이동 가능한지 확인
             if (currentIndex < currentTierItems.length - 1) {
-                // 같은 티어 내에서 위치 교환 (순서 변경)
                 const nextItem = currentTierItems[currentIndex + 1];
-                // 실제로는 순서만 변경하면 되므로 직접 배열 순서를 재정렬
                 const itemIndex = animeData.findIndex(a => a.id === itemId);
                 const nextItemIndex = animeData.findIndex(a => a.id === nextItem.id);
                 [animeData[itemIndex], animeData[nextItemIndex]] = [animeData[nextItemIndex], animeData[itemIndex]];
             } else {
-                // 다음 티어로 이동
                 if (currentTierIndex < tierSettings.length - 1) {
                     item.tierId = tierSettings[currentTierIndex + 1].id;
                 } else {
-                    // 마지막 티어에서 첫 번째 티어로 순환
                     if (tierSettings.length > 0) {
                         item.tierId = tierSettings[0].id;
                     }
@@ -783,109 +881,197 @@
             renderDashboard();
             renderTierBoard();
         }
-        
-        function cycleTierForward(itemId) {
-            const item = animeData.find(a => a.id === itemId);
-            if (!item) return;
-            
-            const currentTierId = item.tierId;
-            const tierIds = ['none', ...tierSettings.map(t => t.id)];
-            const currentIndex = tierIds.indexOf(currentTierId);
-            const nextIndex = (currentIndex + 1) % tierIds.length;
-            const nextTierId = tierIds[nextIndex];
-            
-            item.tierId = nextTierId;
-            saveData();
-            renderDashboard();
-            renderTierBoard();
-        }
-        
-        function dragStart(e, id, tierId) { 
-            e.dataTransfer.effectAllowed = 'move'; 
-            e.dataTransfer.setData('itemId', id); 
-            e.dataTransfer.setData('fromTierId', tierId);
-            e.target.style.opacity = '0.5'; 
-        }
-        
-        function dragEnd(e) { 
-            e.target.style.opacity = '1';
-            document.querySelectorAll('.tier-items').forEach(el => el.style.backgroundColor = 'transparent');
-        }
-        
-        function dragOver(e) { 
-            e.preventDefault(); 
-            e.dataTransfer.dropEffect = 'move';
-            if (e.currentTarget.classList.contains('tier-items')) {
-                e.currentTarget.style.backgroundColor = 'rgba(92, 103, 242, 0.15)';
-            }
-        }
-        
-        function dragLeave(e) {
-            if (e.currentTarget.classList.contains('tier-items')) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-            }
-        }
-        
-        function dragDrop(e, tierId) { 
+
+        function allowDrop(e) { e.preventDefault(); e.target.closest('.tier-items')?.classList.add('drag-over'); }
+        function dropTier(e, tierId) {
             e.preventDefault();
-            if (e.currentTarget.classList.contains('tier-items')) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-            }
-            
-            const itemId = parseInt(e.dataTransfer.getData('itemId')); 
-            const fromTierId = e.dataTransfer.getData('fromTierId') || 'dashboard';
-            const item = animeData.find(a => a.id === itemId); 
-            
-            if (!item) return;
-            
-            if (fromTierId === 'dashboard' || fromTierId === 'none' || !fromTierId) {
+            e.target.closest('.tier-items')?.classList.remove('drag-over');
+            const itemId = parseInt(e.dataTransfer.getData('itemId'));
+            const item = animeData.find(a => a.id === itemId);
+            if (item) {
                 item.tierId = tierId;
-            } else if (fromTierId === tierId) {
-                const tierItems = animeData.filter(a => a.tierId === tierId);
-                const dropZone = e.currentTarget;
-                const tierItemElements = Array.from(dropZone.querySelectorAll('.tier-item'));
-                
-                let dropIndex = tierItemElements.length;
-                for (let i = 0; i < tierItemElements.length; i++) {
-                    const rect = tierItemElements[i].getBoundingClientRect();
-                    if (e.clientX < rect.left + rect.width / 2) {
-                        dropIndex = i;
-                        break;
+                saveData();
+                renderDashboard();
+                renderTierBoard();
+            }
+        }
+
+        function filterDashboard() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.dashboard .card').forEach(card => {
+                const title = card.querySelector('.card-title span')?.textContent.toLowerCase() || '';
+                card.style.display = title.includes(query) ? '' : 'none';
+            });
+        }
+
+        function logout() { auth.signOut(); }
+        function deleteAccount() {
+            if (!confirm('정말 계정을 삭제하시겠습니까?')) return;
+            const uid = currentUser.uid;
+            db.ref(`users/${uid}`).remove();
+            db.ref(`registered_ids/${selectedId}`).remove();
+            currentUser.delete().then(() => auth.signOut());
+        }
+
+        // 굿즈 관리 기능
+        function addGoods() {
+            const price = parseInt(document.getElementById('goodsPrice').value);
+            const title = document.getElementById('goodsTitle').value.trim();
+            const category = document.getElementById('goodsCategory').value;
+            const animeId = document.getElementById('goodsAnime').value;
+            const date = document.getElementById('goodsDate').value;
+            const condition = document.getElementById('goodsCondition').value;
+            const description = document.getElementById('goodsDescription').value.trim();
+
+            if (!price || !title || !category) return alert('필수 정보를 입력하세요');
+
+            const goods = {
+                id: Date.now(),
+                price: price,
+                title: title,
+                category: category,
+                animeId: animeId,
+                date: date || new Date().toISOString().split('T')[0],
+                condition: condition,
+                description: description
+            };
+
+            goodsData.push(goods);
+            saveData();
+            
+            document.getElementById('goodsPrice').value = '';
+            document.getElementById('goodsTitle').value = '';
+            document.getElementById('goodsCategory').value = '';
+            document.getElementById('goodsAnime').value = '';
+            document.getElementById('goodsDate').value = '';
+            document.getElementById('goodsCondition').value = '새상품';
+            document.getElementById('goodsDescription').value = '';
+
+            renderGoodsList();
+            updateGoodsChart();
+        }
+
+        function renderGoodsList() {
+            const list = document.getElementById('goodsList');
+            list.innerHTML = '';
+            goodsData.forEach(goods => {
+                const item = document.createElement('div');
+                item.className = 'goods-item';
+                item.onclick = () => showGoodsDetail(goods.id);
+                const anime = animeData.find(a => a.id === parseInt(goods.animeId));
+                item.innerHTML = `
+                    <div class="goods-item-title">${goods.title}</div>
+                    <div class="goods-item-meta">${goods.category} • ₩${goods.price.toLocaleString()} ${anime ? `• ${anime.title}` : ''}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function showGoodsDetail(goodsId) {
+            const goods = goodsData.find(g => g.id === goodsId);
+            if (!goods) return;
+
+            const anime = animeData.find(a => a.id === parseInt(goods.animeId));
+            const modal = document.getElementById('goodsDetailModal');
+            document.getElementById('detailTitle').textContent = goods.title;
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">금액</span>
+                    <span class="detail-value">₩${goods.price.toLocaleString()}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">카테고리</span>
+                    <span class="detail-value">${goods.category}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">관련 애니</span>
+                    <span class="detail-value">${anime ? anime.title : '없음'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">구매 날짜</span>
+                    <span class="detail-value">${goods.date}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">상태</span>
+                    <span class="detail-value">${goods.condition}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">설명</span>
+                    <span class="detail-value" style="word-break: break-word; white-space: pre-wrap;">${goods.description || '없음'}</span>
+                </div>
+                <button class="goods-add-btn" style="margin-top: 12px; background: var(--danger);" onclick="deleteGoods(${goods.id}); closeGoodsDetail();">삭제</button>
+            `;
+            modal.classList.add('active');
+        }
+
+        function closeGoodsDetail() {
+            document.getElementById('goodsDetailModal').classList.remove('active');
+        }
+
+        function deleteGoods(goodsId) {
+            goodsData = goodsData.filter(g => g.id !== goodsId);
+            saveData();
+            renderGoodsList();
+            updateGoodsChart();
+        }
+
+        function updateGoodsChart() {
+            const ctx = document.getElementById('goodsChart').getContext('2d');
+            const categories = {};
+            let total = 0;
+
+            goodsData.forEach(goods => {
+                categories[goods.category] = (categories[goods.category] || 0) + goods.price;
+                total += goods.price;
+            });
+
+            const labels = Object.keys(categories);
+            const data = Object.values(categories);
+            const colors = ['#ff6b6b', '#ffd43b', '#51cf66', '#339af0', '#845ef7', '#f06595', '#ff8787'];
+
+            if (goodsChart) goodsChart.destroy();
+            
+            goodsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(l => `${l}\n₩${categories[l].toLocaleString()}`),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10 }, padding: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `₩${context.parsed.toLocaleString()}`;
+                                }
+                            }
+                        }
                     }
                 }
-                
-                const currentIndex = tierItems.findIndex(a => a.id === itemId);
-                if (dropIndex !== currentIndex && dropIndex !== currentIndex + 1) {
-                    const reorderedItems = tierItems.filter(a => a.id !== itemId);
-                    const insertIndex = dropIndex > currentIndex ? dropIndex - 1 : dropIndex;
-                    reorderedItems.splice(insertIndex, 0, item);
-                    
-                    const otherItems = animeData.filter(a => a.tierId !== tierId);
-                    animeData = [...otherItems, ...reorderedItems];
-                }
-            } else {
-                item.tierId = tierId;
-            }
-            
-            saveData();
-            renderDashboard();
-            renderTierBoard();
+            });
         }
-        
-        function filterDashboard() { renderDashboard(); }
-        function toggleColorPalette(tierId) {
-            const palette = document.getElementById(`palette-${tierId}`);
-            if (palette.style.display === 'none') {
-                palette.style.display = 'grid';
-                const colors = ['#ff6b6b', '#ff8787', '#ff5252', '#fa5252', '#ffd43b', '#ffc107', '#ffb300', '#51cf66', '#4caf50', '#45b649', '#74c0fc', '#42a5f5', '#2196f3', '#1976d2', '#adb5bd', '#757575'];
-                palette.innerHTML = colors.map(color => `<div class="color-option" style="background-color: ${color};" onclick="updateTierColor('${tierId}', '${color}'); toggleColorPalette('${tierId}')"></div>`).join('');
-            } else {
-                palette.style.display = 'none';
-            }
+
+        function updateGoodsAnimeSelect() {
+            const select = document.getElementById('goodsAnime');
+            select.innerHTML = '<option value="">선택하세요</option>';
+            animeData.forEach(anime => {
+                const option = document.createElement('option');
+                option.value = anime.id;
+                option.textContent = anime.title;
+                select.appendChild(option);
+            });
         }
-        function saveData() { if (currentUser) db.ref(`users/${currentUser.uid}`).set({ animeData, tierSettings }); }
-        function logout() { auth.signOut().then(() => { selectedId = null; showLobby(); }); }
-        function deleteAccount() { if (confirm('정말로 삭제를 진행할까요?')) { const id = currentUser.email.split('@')[0]; db.ref(`users/${currentUser.uid}`).remove(); db.ref('registered_ids/' + id).remove(); auth.currentUser.delete().then(() => showLobby()); } }
     </script>
 </body>
 </html>
