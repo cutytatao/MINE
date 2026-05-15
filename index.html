@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     
     <style>
         :root { 
@@ -562,7 +561,43 @@
                 card.className = `card ${anime.type === 'manga' ? 'is-manga' : anime.type === 'short' ? 'is-short' : 'is-episode'}`;
                 card.draggable = true;
                 card.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('animeId', anime.id); };
-                card.ontouchstart = (e) => { e.dataTransfer = { effectAllowed: 'move', setData: () => {}, getData: () => anime.id }; };
+                
+                // 터치 드래그 지원
+                card.ontouchstart = (e) => {
+                    const touch = e.touches[0];
+                    const animeId = anime.id;
+                    const ghost = card.cloneNode(true);
+                    ghost.style.position = 'fixed';
+                    ghost.style.zIndex = '1000';
+                    ghost.style.opacity = '0.7';
+                    ghost.style.pointerEvents = 'none';
+                    ghost.style.width = card.offsetWidth + 'px';
+                    ghost.style.height = card.offsetHeight + 'px';
+                    document.body.appendChild(ghost);
+
+                    const moveGhost = (te) => {
+                        const t = te.touches[0];
+                        ghost.style.left = (t.clientX - ghost.offsetWidth / 2) + 'px';
+                        ghost.style.top = (t.clientY - ghost.offsetHeight / 2) + 'px';
+                    };
+
+                    const endGhost = (te) => {
+                        const t = te.changedTouches[0];
+                        document.body.removeChild(ghost);
+                        const target = document.elementFromPoint(t.clientX, t.clientY);
+                        const tierRow = target?.closest('.tier-items');
+                        if (tierRow) {
+                            const tier = tierRow.previousElementSibling.textContent;
+                            moveTier(animeId, tier);
+                        }
+                        window.removeEventListener('touchmove', moveGhost);
+                        window.removeEventListener('touchend', endGhost);
+                    };
+
+                    window.addEventListener('touchmove', moveGhost);
+                    window.addEventListener('touchend', endGhost);
+                };
+
                 const tierInfo = tierSettings.find(t => t.animeId === anime.id);
                 const tierBadge = tierInfo ? `<div class="tier-badge">${tierInfo.tier}</div>` : '';
                 let content = `${tierBadge}<img src="${anime.imgUrl}" alt="${anime.title}" onclick="moveAnimeToTier(${anime.id})" /><div class="card-body"><div class="card-title">${anime.title}</div>`;
@@ -602,6 +637,11 @@
             anime.seasons.push({ name, status: '📅' });
             saveData();
             renderSeasons(animeId);
+            // 다음 입력을 위해 포커스 유지
+            setTimeout(() => {
+                const input = document.querySelector(`#seasons-${animeId}`).nextElementSibling.querySelector('input');
+                if (input) input.focus();
+            }, 0);
         }
 
         function deleteAnime(animeId) {
@@ -649,11 +689,6 @@
                     const animeId = parseInt(e.dataTransfer.getData('animeId'));
                     moveTier(animeId, tier);
                 };
-                tierItems.ontouchover = (e) => { e.preventDefault(); };
-                tierItems.ontouchend = (e) => {
-                    const animeId = parseInt(e.dataTransfer?.getData?.('animeId') || 0);
-                    if (animeId) moveTier(animeId, tier);
-                };
                 const tierAnimes = tierSettings.filter(t => t.tier === tier).sort((a, b) => (a.order || 0) - (b.order || 0));
                 tierAnimes.forEach((tierItem, idx) => {
                     const anime = animeData.find(a => a.id === tierItem.animeId);
@@ -662,22 +697,6 @@
                         item.className = 'tier-item';
                         item.draggable = true;
                         item.ondragstart = (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('animeId', anime.id); e.dataTransfer.setData('fromTier', tier); };
-                        item.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-                        item.ondrop = (e) => {
-                            e.preventDefault();
-                            const draggedId = parseInt(e.dataTransfer.getData('animeId'));
-                            const fromTier = e.dataTransfer.getData('fromTier');
-                            if (draggedId !== anime.id) {
-                                const draggedItem = tierSettings.find(t => t.animeId === draggedId && t.tier === fromTier);
-                                const targetItem = tierSettings.find(t => t.animeId === anime.id && t.tier === tier);
-                                if (draggedItem && targetItem) {
-                                    [draggedItem.order, targetItem.order] = [targetItem.order, draggedItem.order];
-                                    if (fromTier !== tier) draggedItem.tier = tier;
-                                    saveData();
-                                    renderTierBoard();
-                                }
-                            }
-                        };
                         item.onclick = () => moveAnimeWithinTiers(anime.id);
                         item.innerHTML = `<img src="${anime.imgUrl}" alt="${anime.title}" />`;
                         tierItems.appendChild(item);
@@ -760,7 +779,6 @@
 
         function saveData() {
             if (!currentUser) return;
-            // 보안과 일관성을 위해 Firebase Auth의 uid를 경로로 사용합니다.
             db.ref(`users/${currentUser.uid}`).update({ 
                 animeData, 
                 tierSettings, 
