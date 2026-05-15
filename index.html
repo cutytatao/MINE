@@ -483,34 +483,58 @@
             const username = currentUser.email.split('@')[0];
             document.getElementById('userDisplay').textContent = `${username} 님`;
             
-            // 기존 데이터 구조(uid 기반)와 새 데이터 구조(username 기반) 모두를 고려하여 로드
-            db.ref(`users/${currentUser.uid}`).on('value', snapshot => {
-                const data = snapshot.val() || {};
-                
-                // 만약 uid 경로에 데이터가 없으면 username 경로에서 확인 (마이그레이션용)
-                if (!data.animeData && !data.tierSettings) {
-                    db.ref(`users/${username}`).once('value', oldSnapshot => {
-                        const oldData = oldSnapshot.val() || {};
-                        applyData(oldData);
-                    });
+            // 1. 애니메이션 데이터 로드
+            db.ref(`users/${currentUser.uid}/animeData`).on('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    animeData = Array.isArray(val) ? val : Object.values(val);
                 } else {
-                    applyData(data);
+                    animeData = [];
                 }
+                renderDashboard();
+                updateStats();
+                updateGoodsAnimeSelect();
             });
-        }
 
-        function applyData(data) {
-            animeData = data.animeData || [];
-            tierSettings = data.tierSettings || [];
-            goodsData = data.goodsData || [];
-            patchNotes = data.patchNotes || [];
-            currentPatchIndex = patchNotes.length - 1;
-            renderDashboard();
-            renderTierBoard();
-            updateStats();
-            updateGoodsChart();
-            updateGoodsAnimeSelect();
-            renderPatchNotes();
+            // 2. 티어 설정 로드
+            db.ref(`users/${currentUser.uid}/tierSettings`).on('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    tierSettings = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    tierSettings = [
+                        { id: 't1', tier: 'S', color: '#ff6b6b' },
+                        { id: 't2', tier: 'A', color: '#ffd43b' },
+                        { id: 't3', tier: 'B', color: '#51cf66' },
+                        { id: 't4', tier: 'C', color: '#74c0fc' }
+                    ];
+                }
+                renderTierBoard();
+            });
+
+            // 3. 굿즈 데이터 로드
+            db.ref(`users/${currentUser.uid}/goodsData`).on('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    goodsData = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    goodsData = [];
+                }
+                renderGoodsList();
+                updateGoodsChart();
+            });
+
+            // 4. 패치노트 로드 (시스템 공용)
+            db.ref('system/patchNotes').on('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    patchNotes = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    patchNotes = [];
+                }
+                currentPatchIndex = patchNotes.length - 1;
+                renderPatchNotes();
+            });
         }
 
         function addItem() {
@@ -740,11 +764,14 @@
             db.ref(`users/${currentUser.uid}`).update({ 
                 animeData, 
                 tierSettings, 
-                goodsData, 
-                patchNotes 
+                goodsData
             });
             renderDashboard();
             updateStats();
+        }
+
+        function saveSystemPatchNotes() {
+            db.ref('system/patchNotes').set(patchNotes);
         }
 
         function switchTab(tabIdx) {
@@ -781,7 +808,7 @@
             if (!content) return alert('패치노트 내용을 입력하세요');
             patchNotes.push({ content, timestamp: new Date().toISOString() });
             currentPatchIndex = patchNotes.length - 1;
-            saveData();
+            saveSystemPatchNotes();
             renderPatchNotes();
             alert('패치노트가 저장되었습니다');
         }
