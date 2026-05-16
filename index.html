@@ -158,14 +158,14 @@
         
         /* 굿즈 관리 탭 스타일 */
         .goods-wrapper { display: flex; gap: 12px; flex: 1; }
-        .goods-left { flex: 1; display: flex; flex-direction: column; }
+        .goods-left { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .goods-right { flex: 1; display: flex; flex-direction: column; }
-        .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; flex-shrink: 0; }
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .form-group label { font-size: 11px; font-weight: 600; color: var(--text-light); }
         .form-group input, .form-group select, .form-group textarea { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; }
         .form-group textarea { resize: vertical; min-height: 50px; }
-        .goods-list { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; flex: 1; overflow-y: auto; }
+        .goods-list { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; flex: 1; overflow-y: auto; min-height: 0; }
         .goods-item { padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; font-size: 11px; }
         .goods-item:hover { background: #f1f3f5; }
         .goods-item:last-child { border-bottom: none; }
