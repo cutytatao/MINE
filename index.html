@@ -171,12 +171,8 @@
         .goods-item:last-child { border-bottom: none; }
         .goods-item-title { font-weight: 600; color: var(--primary); }
         .goods-item-meta { color: var(--text-secondary); font-size: 10px; margin-top: 2px; }
-        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .goods-chart { width: 100%; height: 100%; max-width: 300px; max-height: 300px; }
-        .goods-chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-        .total-expense-display { position: absolute; text-align: center; font-size: 14px; font-weight: bold; color: var(--primary); z-index: 10; }
-        .total-expense-label { font-size: 10px; color: var(--text-secondary); }
-        .total-expense-value { font-size: 16px; color: var(--primary); font-weight: 700; }
         
         .goods-detail-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; max-width: 400px; width: 90%; }
         .goods-detail-modal.active { display: block; }
@@ -197,7 +193,7 @@
         <div class="lobby-left">
             <div class="lobby-title">
                 Anime Archive
-                <span>v2.3</span>
+                <span>v2.2</span>
             </div>
             <div class="user-grid" id="userGrid"></div>
         </div>
@@ -365,13 +361,7 @@
                 </div>
                 <div class="goods-right">
                     <div class="goods-chart-container">
-                        <div class="goods-chart-wrapper">
-                            <canvas class="goods-chart" id="goodsChart"></canvas>
-                            <div class="total-expense-display" id="totalExpenseDisplay">
-                                <div class="total-expense-label">총 지출</div>
-                                <div class="total-expense-value">₩0</div>
-                            </div>
-                        </div>
+                        <canvas class="goods-chart" id="goodsChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -411,7 +401,6 @@
         let patchNotes = [];
         let currentPatchIndex = 0;
         let goodsChart = null;
-        let animeExpenseChart = null;
         let selectedGoodsId = null;
         const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
@@ -428,13 +417,17 @@
         function showLobby() {
             document.getElementById('lobbyContainer').style.display = 'flex';
             document.getElementById('dashboardContainer').style.display = 'none';
-            db.ref('registered_ids').once('value', snapshot => {
+            loadUserList();
+        }
+
+        function loadUserList() {
+            db.ref('registered_ids').on('value', snapshot => {
                 const ids = snapshot.val() || {};
                 const userGrid = document.getElementById('userGrid');
                 userGrid.innerHTML = '';
-                Object.keys(ids).forEach(id => {
+                Object.values(ids).forEach(id => {
                     const card = document.createElement('div');
-                    card.className = 'user-card';
+                    card.className = 'user-card' + (selectedId === id ? ' selected' : '');
                     card.innerHTML = `<div class="avatar">👤</div><div class="username">${id}</div>`;
                     card.onclick = () => selectUser(id);
                     userGrid.appendChild(card);
@@ -445,55 +438,64 @@
         function selectUser(id) {
             selectedId = id;
             document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
-            event.target.closest('.user-card').classList.add('selected');
-            document.getElementById('loginTitle').textContent = `${id} 로그인`;
+            document.getElementById('loginTitle').textContent = `${id}로 로그인`;
             document.getElementById('loginSubtitle').textContent = '비밀번호를 입력하세요';
             document.getElementById('loginBtn').disabled = false;
             document.getElementById('passwordInput').focus();
+            loadUserList();
         }
 
         function login() {
+            if (!selectedId) return;
             const password = document.getElementById('passwordInput').value;
-            if (!password) return alert('비밀번호를 입력하세요');
-            
-            db.ref(`registered_ids/${selectedId}`).once('value', snapshot => {
-                const storedPassword = snapshot.val();
-                if (storedPassword === password) {
+            const email = `${selectedId}@archive.com`;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
                     document.getElementById('loginError').textContent = '';
-                    auth.signInAnonymously().then(result => {
-                        currentUser = result.user;
-                        loadDashboard();
-                    });
-                } else {
+                    document.getElementById('passwordInput').value = '';
+                })
+                .catch(err => {
                     document.getElementById('loginError').textContent = '비밀번호가 틀렸습니다';
-                }
-            });
+                });
         }
 
         function signup() {
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            if (!username || !password) return alert('아이디와 비밀번호를 입력하세요');
-            
-            db.ref(`registered_ids/${username}`).once('value', snapshot => {
-                if (snapshot.exists()) {
-                    document.getElementById('signupError').textContent = '이미 존재하는 아이디입니다';
-                } else {
-                    db.ref(`registered_ids/${username}`).set(password);
-                    db.ref(`users/${username}`).set({ animeData: [], tierSettings: [], goodsData: [] });
-                    document.getElementById('signupError').textContent = '';
+            const id = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            if (!id || !password) return alert('아이디와 비밀번호를 입력하세요');
+            const email = `${id}@archive.com`;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCred => {
+                    db.ref('registered_ids/' + id).set(id);
                     document.getElementById('newUsername').value = '';
                     document.getElementById('newPassword').value = '';
-                    alert('회원가입이 완료되었습니다');
-                    showLobby();
-                }
-            });
+                    document.getElementById('signupError').textContent = '';
+                })
+                .catch(err => {
+                    document.getElementById('signupError').textContent = err.message;
+                });
         }
 
-        function showAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; document.getElementById('adminError').textContent = ''; document.getElementById('adminPassword').value = ''; }
-        function showHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
-        function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
+        function showAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminError').textContent = '';
+            document.getElementById('patchNoteText').value = '';
+        }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
 
         function adminLogin() {
             const password = document.getElementById('adminPassword').value;
@@ -581,7 +583,6 @@
                 updateStats();
                 renderGoodsList();
                 updateGoodsChart();
-                updateAnimeExpenseChart();
                 updateGoodsAnimeSelect();
             });
             loadPatchNotes();
@@ -768,7 +769,7 @@
                     if (item.currentVol === 0) notStarted++;
                     total++;
                 } else if (item.isShort) {
-                    const hasCompleted = item.seasons.every(s => s.status === '✅');
+                    const hasCompleted = item.seasons.some(s => s.status === '✅');
                     const hasWatching = item.seasons.some(s => s.status === '👀');
                     if (hasCompleted) completed++;
                     else if (hasWatching) watching++;
@@ -911,7 +912,7 @@
             const uid = currentUser.uid;
             db.ref(`users/${uid}`).remove();
             db.ref(`registered_ids/${selectedId}`).remove();
-            currentUser.delete().then(() => auth.signOut()).catch(() => auth.signOut());
+            currentUser.delete().then(() => auth.signOut());
         }
 
         // 굿즈 관리 기능
@@ -950,7 +951,6 @@
 
             renderGoodsList();
             updateGoodsChart();
-            updateAnimeExpenseChart();
         }
 
         function renderGoodsList() {
@@ -1015,7 +1015,6 @@
             saveData();
             renderGoodsList();
             updateGoodsChart();
-            updateAnimeExpenseChart();
         }
 
         function updateGoodsChart() {
@@ -1063,33 +1062,6 @@
                     }
                 }
             });
-
-            document.getElementById('totalExpenseDisplay').innerHTML = `
-                <div class="total-expense-label">총 지출</div>
-                <div class="total-expense-value">₩${total.toLocaleString()}</div>
-            `;
-        }
-
-        function updateAnimeExpenseChart() {
-            const animeExpenses = {};
-            let total = 0;
-
-            goodsData.forEach(goods => {
-                const animeId = goods.animeId || 'unknown';
-                animeExpenses[animeId] = (animeExpenses[animeId] || 0) + goods.price;
-                total += goods.price;
-            });
-
-            const labels = Object.keys(animeExpenses).map(id => {
-                if (id === 'unknown') return '미지정';
-                const anime = animeData.find(a => a.id === parseInt(id));
-                return anime ? anime.title : '미지정';
-            });
-            
-            const data = Object.values(animeExpenses);
-            const colors = ['#ff6b6b', '#ffd43b', '#51cf66', '#339af0', '#845ef7', '#f06595', '#ff8787', '#a78bfa', '#fd7e14', '#20c997'];
-
-            console.log('Anime Expense Data:', labels, data);
         }
 
         function updateGoodsAnimeSelect() {
