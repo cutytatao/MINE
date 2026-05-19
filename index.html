@@ -76,7 +76,6 @@
         
         .dashboard-wrapper { display: flex; flex: 1; height: calc(100vh - 150px); width: 100%; }
         .left-panel { flex: 1; padding: 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
-        .panel-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
         .right-panel { flex: 1; background-color: #ffffff; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; height: 100%; padding-bottom: 100px; border-left: 1px solid var(--border-color); }
         
@@ -141,10 +140,9 @@
         .tier-header { padding: 8px 12px; border-radius: 6px; min-width: 50px; display: flex; align-items: center; justify-content: center; gap: 6px; position: relative; }
         .tier-name { font-size: 12px; font-weight: 700; color: white; }
         .tier-items { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; align-content: flex-start; }
-        .tier-item { width: 100px; height: 140px; background: #f1f3f5; border-radius: 6px; overflow: hidden; cursor: grab; transition: all 0.2s; position: relative; touch-action: none; user-select: none; }
-        .tier-item:active { cursor: grabbing; opacity: 0.7; }
-        .tier-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
-        .tier-item.dragging { opacity: 0.5; transform: scale(0.95); }
+        .tier-item { width: 100px; height: 140px; background: #f1f3f5; border-radius: 6px; overflow: hidden; cursor: grab; transition: all 0.2s; position: relative; }
+        .tier-item:active { cursor: grabbing; }
+        .tier-item img { width: 100%; height: 100%; object-fit: cover; }
         .tier-item.drag-over { opacity: 0.5; }
         .tier-add-btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; margin-top: 12px; }
         .tier-add-btn:hover { background: #4a52d5; }
@@ -160,32 +158,21 @@
         
         /* 굿즈 관리 탭 스타일 */
         .goods-wrapper { display: flex; gap: 12px; flex: 1; }
-        .goods-left { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .goods-left::before { content: '굿즈관리'; display: block; font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
+        .goods-left { flex: 1; display: flex; flex-direction: column; }
         .goods-right { flex: 1; display: flex; flex-direction: column; }
-        .goods-right::before { content: '굿즈원'; display: block; font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
-        .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; flex-shrink: 0; }
+        .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .form-group label { font-size: 11px; font-weight: 600; color: var(--text-light); }
         .form-group input, .form-group select, .form-group textarea { padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; }
         .form-group textarea { resize: vertical; min-height: 50px; }
-        .goods-list { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; flex: 1; overflow-y: auto; min-height: 0; max-height: 400px; user-select: none; }
-        .goods-item { padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; font-size: 11px; user-select: none; }
+        .goods-list { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; flex: 1; overflow-y: auto; }
+        .goods-item { padding: 8px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; font-size: 11px; }
         .goods-item:hover { background: #f1f3f5; }
         .goods-item:last-child { border-bottom: none; }
-        .goods-item.dragging-scroll { opacity: 0.6; }
         .goods-item-title { font-weight: 600; color: var(--primary); }
         .goods-item-meta { color: var(--text-secondary); font-size: 10px; margin-top: 2px; }
-        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .goods-chart-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
-        .goods-chart-section-title { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-        .goods-chart { width: 100%; height: 250px; max-width: 280px; }
-        .goods-chart-wrapper { position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; }
-        .anime-chart-wrapper { position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; }
-        .anime-expense-chart { width: 100%; height: 250px; max-width: 280px; }
-        .total-expense-display { position: absolute; text-align: center; font-size: 14px; font-weight: bold; color: var(--primary); z-index: 10; }
-        .total-expense-label { font-size: 10px; color: var(--text-secondary); }
-        .total-expense-value { font-size: 16px; color: var(--primary); font-weight: 700; }
+        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .goods-chart { width: 100%; height: 100%; max-width: 300px; max-height: 300px; }
         
         .goods-detail-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; max-width: 400px; width: 90%; }
         .goods-detail-modal.active { display: block; }
@@ -206,7 +193,7 @@
         <div class="lobby-left">
             <div class="lobby-title">
                 Anime Archive
-                <span>v2.4</span>
+                <span>v2.2</span>
             </div>
             <div class="user-grid" id="userGrid"></div>
         </div>
@@ -308,13 +295,11 @@
             </div>
             <div class="dashboard-wrapper">
                 <div class="left-panel">
-                    <div class="panel-title">상품관리</div>
                     <div class="dashboard-container">
                         <div class="dashboard" id="dashboard"></div>
                     </div>
                 </div>
                 <div class="right-panel">
-                    <div class="panel-title">티어리스트</div>
                     <div id="patchNotesDisplay"></div>
                     <div class="stats-bar" id="statsBar"></div>
                     <div class="tier-board" id="tierBoard"></div>
@@ -376,22 +361,7 @@
                 </div>
                 <div class="goods-right">
                     <div class="goods-chart-container">
-                        <div class="goods-chart-section">
-                            <div class="goods-chart-section-title">지출원</div>
-                            <div class="goods-chart-wrapper">
-                                <canvas class="goods-chart" id="goodsChart"></canvas>
-                                <div class="total-expense-display" id="totalExpenseDisplay">
-                                    <div class="total-expense-label">총 지출</div>
-                                    <div class="total-expense-value">₩0</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="goods-chart-section">
-                            <div class="goods-chart-section-title">애니별 지출</div>
-                            <div class="anime-chart-wrapper">
-                                <canvas class="anime-expense-chart" id="animeExpenseChart"></canvas>
-                            </div>
-                        </div>
+                        <canvas class="goods-chart" id="goodsChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -431,13 +401,6 @@
         let patchNotes = [];
         let currentPatchIndex = 0;
         let goodsChart = null;
-        let animeExpenseChart = null;
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchItem = null;
-        let draggedElement = null;
-        let goodsListDragging = false;
-        let goodsListStartY = 0;
         let selectedGoodsId = null;
         const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
@@ -454,13 +417,17 @@
         function showLobby() {
             document.getElementById('lobbyContainer').style.display = 'flex';
             document.getElementById('dashboardContainer').style.display = 'none';
-            db.ref('registered_ids').once('value', snapshot => {
+            loadUserList();
+        }
+
+        function loadUserList() {
+            db.ref('registered_ids').on('value', snapshot => {
                 const ids = snapshot.val() || {};
                 const userGrid = document.getElementById('userGrid');
                 userGrid.innerHTML = '';
-                Object.keys(ids).forEach(id => {
+                Object.values(ids).forEach(id => {
                     const card = document.createElement('div');
-                    card.className = 'user-card';
+                    card.className = 'user-card' + (selectedId === id ? ' selected' : '');
                     card.innerHTML = `<div class="avatar">👤</div><div class="username">${id}</div>`;
                     card.onclick = () => selectUser(id);
                     userGrid.appendChild(card);
@@ -471,55 +438,64 @@
         function selectUser(id) {
             selectedId = id;
             document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
-            event.target.closest('.user-card').classList.add('selected');
-            document.getElementById('loginTitle').textContent = `${id} 로그인`;
+            document.getElementById('loginTitle').textContent = `${id}로 로그인`;
             document.getElementById('loginSubtitle').textContent = '비밀번호를 입력하세요';
             document.getElementById('loginBtn').disabled = false;
             document.getElementById('passwordInput').focus();
+            loadUserList();
         }
 
         function login() {
+            if (!selectedId) return;
             const password = document.getElementById('passwordInput').value;
-            if (!password) return alert('비밀번호를 입력하세요');
-            
-            db.ref(`registered_ids/${selectedId}`).once('value', snapshot => {
-                const storedPassword = snapshot.val();
-                if (storedPassword === password) {
+            const email = `${selectedId}@archive.com`;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
                     document.getElementById('loginError').textContent = '';
-                    auth.signInAnonymously().then(result => {
-                        currentUser = result.user;
-                        loadDashboard();
-                    });
-                } else {
+                    document.getElementById('passwordInput').value = '';
+                })
+                .catch(err => {
                     document.getElementById('loginError').textContent = '비밀번호가 틀렸습니다';
-                }
-            });
+                });
         }
 
         function signup() {
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            if (!username || !password) return alert('아이디와 비밀번호를 입력하세요');
-            
-            db.ref(`registered_ids/${username}`).once('value', snapshot => {
-                if (snapshot.exists()) {
-                    document.getElementById('signupError').textContent = '이미 존재하는 아이디입니다';
-                } else {
-                    db.ref(`registered_ids/${username}`).set(password);
-                    db.ref(`users/${username}`).set({ animeData: [], tierSettings: [], goodsData: [] });
-                    document.getElementById('signupError').textContent = '';
+            const id = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            if (!id || !password) return alert('아이디와 비밀번호를 입력하세요');
+            const email = `${id}@archive.com`;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCred => {
+                    db.ref('registered_ids/' + id).set(id);
                     document.getElementById('newUsername').value = '';
                     document.getElementById('newPassword').value = '';
-                    alert('회원가입이 완료되었습니다');
-                    showLobby();
-                }
-            });
+                    document.getElementById('signupError').textContent = '';
+                })
+                .catch(err => {
+                    document.getElementById('signupError').textContent = err.message;
+                });
         }
 
-        function showAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; document.getElementById('adminError').textContent = ''; document.getElementById('adminPassword').value = ''; }
-        function showHelpModal() { document.getElementById('helpModal').style.display = 'flex'; }
-        function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
+        function showAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminError').textContent = '';
+            document.getElementById('patchNoteText').value = '';
+        }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
 
         function adminLogin() {
             const password = document.getElementById('adminPassword').value;
@@ -607,7 +583,6 @@
                 updateStats();
                 renderGoodsList();
                 updateGoodsChart();
-                updateAnimeExpenseChart();
                 updateGoodsAnimeSelect();
             });
             loadPatchNotes();
@@ -759,8 +734,6 @@
                     itemEl.ondragleave = (e) => { e.target.closest('.tier-item')?.classList.remove('drag-over'); };
                     itemEl.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); };
                     itemEl.onclick = () => moveAnimeWithinTiers(item.id);
-                    itemEl.ontouchstart = (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchItem = { id: item.id, tierId: tier.id }; };
-                    itemEl.ontouchend = (e) => { if (touchItem) { const dx = e.changedTouches[0].clientX - touchStartX; const dy = e.changedTouches[0].clientY - touchStartY; if (Math.abs(dx) > 30 || Math.abs(dy) > 30) moveAnimeWithinTiers(touchItem.id); touchItem = null; } };
                     itemEl.innerHTML = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100x140?text=No+Poster'" />`;
                     itemsContainer.appendChild(itemEl);
                 });
@@ -796,7 +769,7 @@
                     if (item.currentVol === 0) notStarted++;
                     total++;
                 } else if (item.isShort) {
-                    const hasCompleted = item.seasons.every(s => s.status === '✅');
+                    const hasCompleted = item.seasons.some(s => s.status === '✅');
                     const hasWatching = item.seasons.some(s => s.status === '👀');
                     if (hasCompleted) completed++;
                     else if (hasWatching) watching++;
@@ -939,7 +912,7 @@
             const uid = currentUser.uid;
             db.ref(`users/${uid}`).remove();
             db.ref(`registered_ids/${selectedId}`).remove();
-            currentUser.delete().then(() => auth.signOut()).catch(() => auth.signOut());
+            currentUser.delete().then(() => auth.signOut());
         }
 
         // 굿즈 관리 기능
@@ -978,7 +951,6 @@
 
             renderGoodsList();
             updateGoodsChart();
-            updateAnimeExpenseChart();
         }
 
         function renderGoodsList() {
@@ -1043,7 +1015,6 @@
             saveData();
             renderGoodsList();
             updateGoodsChart();
-            updateAnimeExpenseChart();
         }
 
         function updateGoodsChart() {
@@ -1080,75 +1051,6 @@
                         legend: {
                             position: 'bottom',
                             labels: { font: { size: 10 }, padding: 10 }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `₩${context.parsed.toLocaleString()}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            document.getElementById('totalExpenseDisplay').innerHTML = `
-                <div class="total-expense-label">총 지출</div>
-                <div class="total-expense-value">₩${total.toLocaleString()}</div>
-            `;
-        }
-
-        function updateAnimeExpenseChart() {
-            const animeExpenses = {};
-            let total = 0;
-
-            goodsData.forEach(goods => {
-                const animeId = goods.animeId || 'unknown';
-                animeExpenses[animeId] = (animeExpenses[animeId] || 0) + goods.price;
-                total += goods.price;
-            });
-
-            const labels = Object.keys(animeExpenses).map(id => {
-                if (id === 'unknown') return '미지정';
-                const anime = animeData.find(a => a.id === parseInt(id));
-                return anime ? anime.title : '미지정';
-            });
-            
-            const data = Object.values(animeExpenses);
-            const colors = ['#ff6b6b', '#ffd43b', '#51cf66', '#339af0', '#845ef7', '#f06595', '#ff8787', '#a78bfa', '#fd7e14', '#20c997'];
-
-            if (labels.length === 0) {
-                const ctx = document.getElementById('animeExpenseChart');
-                if (ctx && animeExpenseChart) {
-                    animeExpenseChart.destroy();
-                    animeExpenseChart = null;
-                }
-                return;
-            }
-
-            const ctx = document.getElementById('animeExpenseChart');
-            if (!ctx) return;
-
-            if (animeExpenseChart) animeExpenseChart.destroy();
-            
-            animeExpenseChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderColor: '#ffffff',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { font: { size: 9 }, padding: 8 }
                         },
                         tooltip: {
                             callbacks: {
