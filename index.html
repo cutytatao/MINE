@@ -596,8 +596,7 @@
             document.getElementById('dashboardContainer').style.display = 'flex';
             document.getElementById('userDisplay').textContent = `${selectedId} 님 환영합니다`;
             
-            const uid = currentUser.uid;
-            db.ref(`users/${uid}`).on('value', snapshot => {
+            db.ref(`users/${selectedId}`).on('value', snapshot => {
                 const data = snapshot.val() || {};
                 animeData = data.animeData || [];
                 tierSettings = data.tierSettings || [];
@@ -614,9 +613,8 @@
         }
 
         function saveData() {
-            if (!currentUser) return;
-            const uid = currentUser.uid;
-            db.ref(`users/${uid}`).set({
+            if (!selectedId) return;
+            db.ref(`users/${selectedId}`).set({
                 animeData: animeData,
                 tierSettings: tierSettings,
                 goodsData: goodsData
@@ -953,10 +951,9 @@
         function logout() { auth.signOut(); }
         function deleteAccount() {
             if (!confirm('정말 계정을 삭제하시겠습니까?')) return;
-            const uid = currentUser.uid;
-            db.ref(`users/${uid}`).remove();
+            db.ref(`users/${selectedId}`).remove();
             db.ref(`registered_ids/${selectedId}`).remove();
-            currentUser.delete().then(() => auth.signOut()).catch(() => auth.signOut());
+            auth.signOut();
         }
 
         // 굿즈 관리 기능
