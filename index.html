@@ -76,6 +76,7 @@
         
         .dashboard-wrapper { display: flex; flex: 1; height: calc(100vh - 150px); width: 100%; }
         .left-panel { flex: 1; padding: 20px; background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
+        .panel-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
         .dashboard-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; padding-bottom: 150px; }
         .right-panel { flex: 1; background-color: #ffffff; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; height: 100%; padding-bottom: 100px; border-left: 1px solid var(--border-color); }
         
@@ -159,7 +160,9 @@
         /* 굿즈 관리 탭 스타일 */
         .goods-wrapper { display: flex; gap: 12px; flex: 1; }
         .goods-left { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .goods-left::before { content: '굿즈관리'; display: block; font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
         .goods-right { flex: 1; display: flex; flex-direction: column; }
+        .goods-right::before { content: '굿즈원'; display: block; font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
         .goods-form { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; flex-shrink: 0; }
         .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .form-group label { font-size: 11px; font-weight: 600; color: var(--text-light); }
@@ -299,11 +302,13 @@
             </div>
             <div class="dashboard-wrapper">
                 <div class="left-panel">
+                    <div class="panel-title">상품관리</div>
                     <div class="dashboard-container">
                         <div class="dashboard" id="dashboard"></div>
                     </div>
                 </div>
                 <div class="right-panel">
+                    <div class="panel-title">티어리스트</div>
                     <div id="patchNotesDisplay"></div>
                     <div class="stats-bar" id="statsBar"></div>
                     <div class="tier-board" id="tierBoard"></div>
