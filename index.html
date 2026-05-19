@@ -141,9 +141,9 @@
         .tier-header { padding: 8px 12px; border-radius: 6px; min-width: 50px; display: flex; align-items: center; justify-content: center; gap: 6px; position: relative; }
         .tier-name { font-size: 12px; font-weight: 700; color: white; }
         .tier-items { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; align-content: flex-start; }
-        .tier-item { width: 100px; height: 140px; background: #f1f3f5; border-radius: 6px; overflow: hidden; cursor: grab; transition: all 0.2s; position: relative; }
+        .tier-item { width: 100px; height: 140px; background: #f1f3f5; border-radius: 6px; overflow: hidden; cursor: grab; transition: all 0.2s; position: relative; touch-action: none; }
         .tier-item:active { cursor: grabbing; }
-        .tier-item img { width: 100%; height: 100%; object-fit: cover; }
+        .tier-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         .tier-item.drag-over { opacity: 0.5; }
         .tier-add-btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; margin-top: 12px; }
         .tier-add-btn:hover { background: #4a52d5; }
@@ -174,9 +174,13 @@
         .goods-item:last-child { border-bottom: none; }
         .goods-item-title { font-weight: 600; color: var(--primary); }
         .goods-item-meta { color: var(--text-secondary); font-size: 10px; margin-top: 2px; }
-        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        .goods-chart { width: 100%; height: 100%; max-width: 300px; max-height: 300px; }
-        .goods-chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        .goods-chart-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .goods-chart-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+        .goods-chart-section-title { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .goods-chart { width: 100%; height: 250px; max-width: 280px; }
+        .goods-chart-wrapper { position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; }
+        .anime-chart-wrapper { position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; }
+        .anime-expense-chart { width: 100%; height: 250px; max-width: 280px; }
         .total-expense-display { position: absolute; text-align: center; font-size: 14px; font-weight: bold; color: var(--primary); z-index: 10; }
         .total-expense-label { font-size: 10px; color: var(--text-secondary); }
         .total-expense-value { font-size: 16px; color: var(--primary); font-weight: 700; }
@@ -200,7 +204,7 @@
         <div class="lobby-left">
             <div class="lobby-title">
                 Anime Archive
-                <span>v2.3</span>
+                <span>v2.4</span>
             </div>
             <div class="user-grid" id="userGrid"></div>
         </div>
@@ -370,11 +374,20 @@
                 </div>
                 <div class="goods-right">
                     <div class="goods-chart-container">
-                        <div class="goods-chart-wrapper">
-                            <canvas class="goods-chart" id="goodsChart"></canvas>
-                            <div class="total-expense-display" id="totalExpenseDisplay">
-                                <div class="total-expense-label">총 지출</div>
-                                <div class="total-expense-value">₩0</div>
+                        <div class="goods-chart-section">
+                            <div class="goods-chart-section-title">지출원</div>
+                            <div class="goods-chart-wrapper">
+                                <canvas class="goods-chart" id="goodsChart"></canvas>
+                                <div class="total-expense-display" id="totalExpenseDisplay">
+                                    <div class="total-expense-label">총 지출</div>
+                                    <div class="total-expense-value">₩0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="goods-chart-section">
+                            <div class="goods-chart-section-title">애니별 지출</div>
+                            <div class="anime-chart-wrapper">
+                                <canvas class="anime-expense-chart" id="animeExpenseChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -417,6 +430,9 @@
         let currentPatchIndex = 0;
         let goodsChart = null;
         let animeExpenseChart = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchItem = null;
         let selectedGoodsId = null;
         const statusCfg = { '📅': { emoji: '📅', next: '👀' }, '👀': { emoji: '👀', next: '✅' }, '✅': { emoji: '✅', next: '📅' } };
 
@@ -738,6 +754,8 @@
                     itemEl.ondragleave = (e) => { e.target.closest('.tier-item')?.classList.remove('drag-over'); };
                     itemEl.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); };
                     itemEl.onclick = () => moveAnimeWithinTiers(item.id);
+                    itemEl.ontouchstart = (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchItem = { id: item.id, tierId: tier.id }; };
+                    itemEl.ontouchend = (e) => { if (touchItem) { const dx = e.changedTouches[0].clientX - touchStartX; const dy = e.changedTouches[0].clientY - touchStartY; if (Math.abs(dx) > 30 || Math.abs(dy) > 30) moveAnimeWithinTiers(touchItem.id); touchItem = null; } };
                     itemEl.innerHTML = `<img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100x140?text=No+Poster'" />`;
                     itemsContainer.appendChild(itemEl);
                 });
@@ -1094,7 +1112,49 @@
             const data = Object.values(animeExpenses);
             const colors = ['#ff6b6b', '#ffd43b', '#51cf66', '#339af0', '#845ef7', '#f06595', '#ff8787', '#a78bfa', '#fd7e14', '#20c997'];
 
-            console.log('Anime Expense Data:', labels, data);
+            if (labels.length === 0) {
+                const ctx = document.getElementById('animeExpenseChart');
+                if (ctx && animeExpenseChart) {
+                    animeExpenseChart.destroy();
+                    animeExpenseChart = null;
+                }
+                return;
+            }
+
+            const ctx = document.getElementById('animeExpenseChart');
+            if (!ctx) return;
+
+            if (animeExpenseChart) animeExpenseChart.destroy();
+            
+            animeExpenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 9 }, padding: 8 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `₩${context.parsed.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function updateGoodsAnimeSelect() {
